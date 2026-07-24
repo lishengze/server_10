@@ -1,0 +1,50 @@
+import os ;
+import path ;
+
+path-constant CWD : . ;
+
+local PERF_TEST = [ os.environ PERF_TEST ] ;
+
+if $(PERF_TEST)
+{
+  ECHO "Compiling perf-exe" ;
+  for cpp_path in [ path.glob-tree $(CWD) :  *_perf.cpp ]
+  {
+      local cpp_file = [ path.basename $(cpp_path) ] ;
+      local case_name = $(cpp_file:B) ;
+      exe $(case_name)
+          : $(cpp_file)
+            ../..//adk
+            ../../src/io_engine/tcp_verbs/tcp_socket.cpp
+            ../../src/io_engine/tcp_verbs/tcp_direct_zf.cpp
+            ../../src/io_engine/tcp_verbs/tcp_interface.cpp
+          : <include>../../include/
+            <include>../../src/io_engine/
+            #<define>_IO_ENGINE_TRACE_
+          ;
+  }
+}
+else
+{
+  ECHO "Compiling unit-test" ;
+  for cpp_path in [ path.glob-tree $(CWD) :  *_test.cpp ]
+  {
+      local cpp_file = [ path.basename $(cpp_path) ] ;
+      local case_name = $(cpp_file:B) ;
+      unit-test $(case_name)
+          : $(cpp_file)
+            ../..//adk
+            ../../../../3rd//turtle-1.3.0
+            ../../src/io_engine/local_ports.cpp
+            ../../src/io_engine/message_pool.cpp
+            ../../src/io_engine/tcp_verbs/tcp_socket.cpp
+            ../../src/io_engine/tcp_verbs/tcp_direct_zf.cpp
+            ../../src/io_engine/tcp_verbs/tcp_interface.cpp
+          : <include>../../include/
+            <include>../../src/io_engine/
+            <define>__ADK_UNIT_TEST__
+            #<define>_IO_ENGINE_TRACE_
+            <testing.arg>"--log_level=message"
+          ;
+  }
+}

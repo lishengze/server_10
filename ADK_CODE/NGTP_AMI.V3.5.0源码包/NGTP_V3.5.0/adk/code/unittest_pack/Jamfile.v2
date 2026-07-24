@@ -1,0 +1,87 @@
+import os ;
+import path ;
+
+path-constant CWD : . ;
+# 第三方工具库目录
+local TPL_PATH = [ os.environ TPL_PATH ] ;
+if ! $(TPL_PATH)
+{
+    path-constant TPL_PATH : ./../3rd ;
+}
+
+ECHO "<adk> 3rd path is: " $(TPL_PATH) ;
+
+# 引入Boost库
+local BOOST_ROOT = [ os.environ BOOST_ROOT ] ;
+if ! $(BOOST_ROOT)
+{
+    path-constant BOOST_ROOT : $(TPL_PATH)/boost_1_62_0 ;
+}
+
+ECHO "<adk> Boost lib path is: " $(BOOST_ROOT) ;
+
+use-project /boost : $(BOOST_ROOT) ;
+
+project adk_pack
+    : requirements
+      <cxxflags>-std=c++11
+    : default-build
+      release
+      <threading>multi
+    ;
+
+alias dependencies
+    : /boost/log//boost_log
+      /boost/log//boost_log_setup
+      /boost/locale//boost_locale
+      /boost/filesystem//boost_filesystem
+      /boost/program_options//boost_program_options
+      /boost/date_time//boost_date_time
+      /boost/thread//boost_thread
+      /boost/regex//boost_regex
+    ;
+
+lib entry_wrapper
+    : $(CWD)/../src/entry_wrapper.cpp
+      $(CWD)/../src_pack/entry_wrapper_pack.cpp
+    : <include>$(CWD)/../include
+      <implicit-dependency>/boost//headers
+      <cxxflags>"-O0 -ggdb"
+    ;
+
+lib adk_pack
+    : [ path.glob-tree $(CWD)/../src : *.cpp : entry_wrapper.cpp  ]
+      [ path.glob-tree $(CWD)/../src_pack : *.cpp : entry_wrapper_pack.cpp  ]
+      dependencies 
+      #/libcrypto//crypto/<link>static
+    : <include>$(CWD)/../include
+      <include>$(CWD)/../include/adk/rdma
+      <include>$(CWD)/../src/io_engine/tcp_verbs
+      <include>$(CWD)/../3rd/
+      <implicit-dependency>/boost//headers
+      <cxxflags>-ftemplate-depth=256
+    :
+    : <include>$(CWD)/../include
+      <include>$(CWD)/../include/adk/rdma
+      <include>$(CWD)/../3rd/
+      <debug-symbols>on
+      <library>dependencies
+      <library>entry_wrapper
+      <linkflags>-ldl
+      <link>shared:<linkflags>"-Wl,-Bdynamic -lz"
+    ;
+
+
+for cpp_path in [ path.glob-tree $(CWD) :  *_test.cpp ]
+{
+    local cpp_file = [ path.basename $(cpp_path) ] ;
+    local case_name = $(cpp_file:B) ;
+    unit-test $(case_name)
+        : $(cpp_file)
+          /adk_pack//adk_pack/
+          ../3rd//turtle-1.3.0
+        : <include>../include/
+          <define>__ADK_DEBUG__
+          <debug-symbols>on
+        ;
+}

@@ -1,0 +1,26 @@
+exe ami_record_tool
+    : record_tool.cpp
+      ../..//ami
+      /adk//adk
+    : <linkflags>"-Wl,-Bdynamic -ldl"
+    ;
+
+lib test_slave_msg_parser_v1
+    : test_slave_msg_parser_v1.cpp
+      ../..//ami
+      /adk//adk
+    : <linkflags>"-Wl,-Bdynamic -ldl"
+    ;
+
+lib test_slave_msg_parser_v2
+    : test_slave_msg_parser_v2.cpp
+      ../..//ami
+      /adk//adk
+    : <linkflags>"-Wl,-Bdynamic -ldl"
+    ;
+
+install stage
+    : ami_record_tool
+    : <location>./stage <install-type>EXE <install-type>LIB
+    ;
+

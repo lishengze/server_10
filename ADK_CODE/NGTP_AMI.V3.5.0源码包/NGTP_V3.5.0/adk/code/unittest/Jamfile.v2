@@ -1,0 +1,16 @@
+import path ;
+
+path-constant CWD : . ;
+
+for cpp_path in [ path.glob-tree $(CWD) :  *_test.cpp : io_engine ]
+{
+    local cpp_file = [ path.basename $(cpp_path) ] ;
+    local case_name = $(cpp_file:B) ;
+    unit-test $(case_name)
+        : $(cpp_file)
+          ..//adk/<variant>adk_debug
+          ./../3rd//turtle-1.3.0
+        : <include>../include/
+          <define>__ADK_DEBUG__
+        ;
+}

@@ -1,0 +1,278 @@
+import os ;
+import path ;
+
+path-constant CWD : . ;
+path-constant TPL_PATH : ../../../../3rd ;
+
+local BOOST_ROOT = [ os.environ BOOST_ROOT ] ;
+if ! $(BOOST_ROOT)
+{
+    BOOST_ROOT = $(TPL_PATH)/boost_1_62_0 ;
+}
+ECHO "Boost lib path is: " $(BOOST_ROOT) ;
+# 强制其他模块都使用一致的Boost版本
+modules.poke : BOOST_ROOT : $(BOOST_ROOT) ;
+
+use-project /boost : $(BOOST_ROOT) ;
+use-project /adk : ../../ ;
+
+alias dependencies
+    : /boost/log//boost_log
+      /boost/log//boost_log_setup
+      /boost/locale//boost_locale
+      /boost/thread//boost_thread
+      /boost/filesystem//boost_filesystem
+    ;
+
+exe test_tcp_engine_v1
+    : test_tcp_engine_v1.cpp
+      /adk//adk
+    :  <include>../../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    ;
+	
+exe test_tcp_engine_v2
+    : test_tcp_engine_v2.cpp
+      /adk//adk
+    :  <include>../../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    ;
+	
+exe test_tcp_engine_v3
+    : test_tcp_engine_v3.cpp
+      /adk//adk
+    :  <include>../../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    ;
+
+exe test_tcp_engine_recver
+    : test_tcp_engine_recver.cpp
+      /adk//adk
+    :  <include>../../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    ;
+
+exe test_tcp_engine_v4
+    : test_tcp_engine_v4.cpp
+      /adk//adk
+    :  <include>../../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    ;
+
+exe test_tcp_engine_v5
+    : test_tcp_engine_v5.cpp
+      /adk//adk
+    : <include>../../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    ;
+
+exe test_tcp_engine_v6
+    : test_tcp_engine_v6.cpp
+      /adk//adk
+    : <include>../../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    ;
+
+exe test_tcp_perf_client
+    : test_tcp_perf_client.cpp
+      /adk//adk
+    : <include>../../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    ;
+
+exe test_tcp_perf_server
+    : test_tcp_perf_server.cpp
+      /adk//adk
+    : <include>../../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    ;
+
+exe test_tcp_perf_client_nr
+    : test_tcp_perf_client_nr.cpp
+      /adk//adk
+    : <include>../../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    ;
+
+exe test_tcp_perf_server_nr
+    : test_tcp_perf_server_nr.cpp
+      /adk//adk
+    : <include>../../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    ;
+
+exe tcp_engine_perf_test_client
+    : tcp_engine_perf_test_client.cpp
+      /adk//adk
+    : <include>../../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    ;
+
+exe tcp_engine_perf_test_server
+    : tcp_engine_perf_test_server.cpp
+      /adk//adk
+    : <include>../../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    ;
+
+
+exe test_case_1_client
+    : test_case_1_client.cpp
+      /adk//adk
+    : <include>../../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    ;
+
+exe test_case_1_server
+    : test_case_1_server.cpp
+      /adk//adk
+    : <include>../../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    ;
+
+exe test_case_2_client
+    : test_case_2_client.cpp
+      /adk//adk
+    : <include>../../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    ;
+
+exe test_case_2_server
+    : test_case_2_server.cpp
+      /adk//adk
+    : <include>../../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    ;
+
+exe test_case_3_client
+    : test_case_3_client.cpp
+      /adk//adk
+    : <include>../../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    ;
+
+exe test_case_3_server
+    : test_case_3_server.cpp
+      /adk//adk
+    : <include>../../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    ;
+
+exe tcp_verbs_client_perf
+    : tcp_verbs_client_perf.cpp
+      /adk//adk
+      ../../src/io_engine/tcp_verbs/tcp_socket.cpp
+      ../../src/io_engine/tcp_verbs/tcp_direct_zf.cpp
+      ../../src/io_engine/tcp_verbs/tcp_interface.cpp
+    : <include>../../
+      <include>../../src/io_engine
+      <include>../../src/io_engine/tcp_verbs
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    ;
+
+exe tcp_verbs_server_perf
+    : tcp_verbs_server_perf.cpp
+      /adk//adk
+      ../../src/io_engine/tcp_verbs/tcp_socket.cpp
+      ../../src/io_engine/tcp_verbs/tcp_direct_zf.cpp
+      ../../src/io_engine/tcp_verbs/tcp_interface.cpp
+    : <include>../../
+      <include>../../src/io_engine
+      <include>../../src/io_engine/tcp_verbs
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    ;
+
+exe test_local_storage_queue
+    : test_local_storage_queue.cpp
+    : <include>../../include
+      <include>../../src/io_engine
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    ;

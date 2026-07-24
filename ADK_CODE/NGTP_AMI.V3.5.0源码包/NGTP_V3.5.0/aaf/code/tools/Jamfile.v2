@@ -1,0 +1,49 @@
+exe send_usr1
+    : send_usr1.cpp
+      ..//aaf
+    : <include>../include
+      <implicit-dependency>/boost//headers
+      <threading>multi
+      <linkflags>-Wl,--no-as-needed
+      <linkflags>-lrt
+    ;
+
+exe ami_receiver
+    : ami_receiver.cpp
+      ..//aaf
+    : <include>../include
+      <implicit-dependency>/boost//headers
+      <threading>multi
+      <linkflags>-Wl,--no-as-needed
+      <linkflags>-lrt
+    ;
+
+exe ami_transmitter
+    : ami_transmitter.cpp
+      ..//aaf
+    : <include>../include
+      <implicit-dependency>/boost//headers
+      <threading>multi
+      <linkflags>-Wl,--no-as-needed
+      <linkflags>-lrt
+    ;
+
+exe ami_forward
+    : ami_forward.cpp
+      ..//aaf
+    : <include>../include
+      <implicit-dependency>/boost//headers
+      <threading>multi
+      <linkflags>-Wl,--no-as-needed
+      <linkflags>-lrt
+    ;
+
+exe ami_connectivity_tool
+    : ami_connectivity_tool.cpp
+      ..//aaf
+    : <include>../include
+      <implicit-dependency>/boost//headers
+      <threading>multi
+      <linkflags>-Wl,--no-as-needed
+      <linkflags>-lrt
+    ;

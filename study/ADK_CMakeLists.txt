@@ -1,0 +1,386 @@
+# ============================================================================
+# ADK (Application Development Kit) CMake 配置文件
+# 适用于 Ubuntu 22.04 LTS 和 Ubuntu 24.04 LTS
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# 1. CMake 最低版本要求
+# Ubuntu 22.04 默认 CMake 3.22.1
+# Ubuntu 24.04 默认 CMake 3.28.1
+# ----------------------------------------------------------------------------
+cmake_minimum_required(VERSION 3.16)
+
+# ----------------------------------------------------------------------------
+# 2. 项目名称和语言
+# PROJECT() 定义项目名称和支持的语言
+# ----------------------------------------------------------------------------
+PROJECT(adk_project LANGUAGES CXX C)
+
+# ----------------------------------------------------------------------------
+# 3. C++ 标准设置
+# CMAKE_CXX_STANDARD: 设置 C++ 标准版本
+#   - C++11: 基础版本，兼容性好
+#   - C++14: 推荐版本，平衡性能和兼容性
+#   - C++17: 现代 C++，需要较新编译器
+# CMAKE_CXX_STANDARD_REQUIRED: 强制要求指定的 C++ 标准
+# CMAKE_CXX_EXTENSIONS: 禁用编译器特定扩展，保证代码可移植性
+# ----------------------------------------------------------------------------
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+# ----------------------------------------------------------------------------
+# 4. 输出目录设置
+# EXECUTABLE_OUTPUT_PATH: 可执行文件输出路径
+# LIBRARY_OUTPUT_PATH: 库文件输出路径
+# ----------------------------------------------------------------------------
+set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
+set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
+
+# ----------------------------------------------------------------------------
+# 5. 编译选项设置
+# CMAKE_CXX_FLAGS: 全局 C++ 编译标志
+#   -g3: 最高级别调试信息
+#   -O2: 优化级别 (Release: -O3, Debug: -O0)
+#   -Wall: 启用所有警告
+#   -Wextra: 启用额外警告
+#   -Werror: 将警告视为错误
+#   -fPIC: 生成位置无关代码 (共享库必需)
+#   -m64: 64 位编译
+#   -finline-functions: 内联函数优化
+#   -Wno-inline: 不警告内联失败
+# ----------------------------------------------------------------------------
+# 基础编译标志 (适用于所有构建类型)
+set(BASE_COMPILE_FLAGS "-Wall -Wextra -fPIC -finline-functions")
+
+# 根据构建类型设置不同的优化级别
+# CMAKE_BUILD_TYPE 可选值：Debug, Release, RelWithDebInfo, MinSizeRel
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(CMAKE_CXX_FLAGS "${BASE_COMPILE_FLAGS} -g3 -O0 -DDEBUG")
+    message(STATUS "Build type: Debug (with full debug info)")
+elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
+    set(CMAKE_CXX_FLAGS "${BASE_COMPILE_FLAGS} -O3 -DNDEBUG")
+    message(STATUS "Build type: Release (optimized)")
+elseif(CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+    set(CMAKE_CXX_FLAGS "${BASE_COMPILE_FLAGS} -O2 -g3 -DNDEBUG")
+    message(STATUS "Build type: RelWithDebInfo (optimized with debug info)")
+else()
+    # 默认使用 Release 模式
+    set(CMAKE_BUILD_TYPE "Release")
+    set(CMAKE_CXX_FLAGS "${BASE_COMPILE_FLAGS} -O3 -DNDEBUG")
+    message(STATUS "Build type: Release (default)")
+endif()
+
+# ----------------------------------------------------------------------------
+# 6. 架构检测和设置
+# 检测当前系统架构 (x86_64 或 arm)
+# 根据不同架构设置特定的编译选项和源文件
+# ----------------------------------------------------------------------------
+execute_process(COMMAND arch OUTPUT_VARIABLE ARCH OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+if(ARCH MATCHES "x86_64")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m64")
+    set(librudp src/rudp_engine)
+    message(STATUS "Architecture: x86_64 (64-bit)")
+    message(STATUS "RUDP engine: enabled")
+elseif(ARCH MATCHES "aarch64|arm")
+    set(librudp "")
+    set(ARM "true")
+    message(STATUS "Architecture: ARM (64-bit)")
+    message(STATUS "RUDP engine: disabled (ARM)")
+else()
+    message(WARNING "Unknown architecture: ${ARCH}, using default settings")
+    set(librudp "")
+endif()
+
+# ----------------------------------------------------------------------------
+# 7. CMake 详细输出控制
+# CMAKE_VERBOSE_MAKEFILE: 控制 make 时是否显示完整命令
+#   OFF: 简洁输出 (推荐)
+#   ON: 显示完整编译命令 (调试时有用)
+# ----------------------------------------------------------------------------
+set(CMAKE_VERBOSE_MAKEFILE OFF)
+
+# ----------------------------------------------------------------------------
+# 8. Boost 库配置
+# Boost_USE_STATIC_LIBS: 使用静态库 (OFF=动态库)
+# Boost_USE_MULTITHREADED: 支持多线程 (ON)
+# Boost_USE_STATIC_RUNTIME: 使用静态运行时库 (OFF=动态)
+# Boost_NO_BOOST_CMAKE: 不使用 Boost 自己的 CMake 模块
+# ----------------------------------------------------------------------------
+set(Boost_USE_STATIC_LIBS OFF)
+set(Boost_USE_MULTITHREADED ON)
+set(Boost_USE_STATIC_RUNTIME OFF)
+set(Boost_NO_BOOST_CMAKE ON)
+
+# ----------------------------------------------------------------------------
+# 9. 查找 Boost 库
+# find_package(): CMake 查找包的命令
+# REQUIRED: 必需组件，找不到会报错
+# COMPONENTS: 需要的 Boost 组件列表
+#   - system: 系统功能
+#   - thread: 线程支持
+#   - filesystem: 文件系统操作
+#   - program_options: 命令行参数解析
+#   - log: 日志功能
+#   - chrono: 时间日期
+#   - atomic: 原子操作
+#   - date_time: 日期时间
+#   - regex: 正则表达式
+# ----------------------------------------------------------------------------
+find_package(Boost REQUIRED COMPONENTS
+    system
+    thread
+    filesystem
+    program_options
+    log
+    log_setup
+    chrono
+    atomic
+    date_time
+    regex
+)
+
+if(Boost_FOUND)
+    message(STATUS "Boost found:")
+    message(STATUS "  Version: ${Boost_VERSION}")
+    message(STATUS "  Include dirs: ${Boost_INCLUDE_DIRS}")
+    message(STATUS "  Library dirs: ${Boost_LIBRARY_DIRS}")
+    message(STATUS "  Libraries: ${Boost_LIBRARIES}")
+    
+    # ------------------------------------------------------------------------
+    # 10. 源文件和头文件收集
+    # file(GLOB_RECURSE): 递归查找匹配模式的文件
+    # *.cpp: 所有 C++ 源文件
+    # *.h: 所有头文件
+    # ------------------------------------------------------------------------
+    file(GLOB_RECURSE adk_SRC 
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
+    )
+    
+    file(GLOB_RECURSE adk_SRC_PACK 
+        ${CMAKE_CURRENT_SOURCE_DIR}/src_pack/*.cpp
+    )
+    
+    # ARM 架构下排除 RUDP 相关源文件
+    if(DEFINED ARM)
+        file(GLOB_RECURSE adk_remove 
+            ${CMAKE_CURRENT_SOURCE_DIR}/src/rudp_engine/*
+        )
+        file(GLOB_RECURSE adk_pack_remove 
+            ${CMAKE_CURRENT_SOURCE_DIR}/src_pack/rudp_engine/*
+        )
+        list(REMOVE_ITEM adk_SRC ${adk_remove})
+        list(REMOVE_ITEM adk_SRC_PACK ${adk_pack_remove})
+        message(STATUS "Excluded RUDP engine files for ARM architecture")
+    endif()
+    
+    file(GLOB_RECURSE adk_HDR 
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/adk/*.h
+    )
+    
+    # ------------------------------------------------------------------------
+    # 11. 包含目录设置
+    # include_directories(): 添加头文件搜索路径
+    # ------------------------------------------------------------------------
+    include_directories(
+        ${Boost_INCLUDE_DIRS}
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/adk
+        ${CMAKE_CURRENT_SOURCE_DIR}/src
+        ${CMAKE_CURRENT_SOURCE_DIR}/3rd
+    )
+    
+    # 可选：添加 RDMA 支持 (如果需要)
+    # include_directories(
+    #     ${CMAKE_CURRENT_SOURCE_DIR}/include/adk/rdma
+    #     ${CMAKE_CURRENT_SOURCE_DIR}/src/io_engine/tcp_verbs
+    # )
+    
+    # 添加 RUDP 引擎目录 (仅 x86_64)
+    if(librudp)
+        include_directories(${librudp})
+    endif()
+    
+    # ------------------------------------------------------------------------
+    # 12. 链接目录设置
+    # link_directories(): 添加库文件搜索路径
+    # ------------------------------------------------------------------------
+    if(DEFINED ENV{BOOST_ROOT})
+        link_directories($ENV{BOOST_ROOT}/lib)
+        link_directories($ENV{BOOST_ROOT}/lib64)
+    endif()
+    
+    # ------------------------------------------------------------------------
+    # 13. 库目标定义
+    # ADD_LIBRARY(): 创建库目标
+    #   STATIC: 静态库 (.a)
+    #   SHARED: 动态库 (.so)
+    # ------------------------------------------------------------------------
+    
+    # 检查是否在 AMI 构建环境中
+    if(DEFINED ENV{BUILD_AMI})
+        message(STATUS "libadk is static linked by libami")
+    else()
+        # 创建静态库 adk
+        add_library(adk STATIC ${adk_SRC} ${adk_HDR})
+        
+        # 设置位置无关代码属性
+        set_property(TARGET adk PROPERTY POSITION_INDEPENDENT_CODE OFF)
+        
+        # --------------------------------------------------------------------
+        # 14. 链接 Boost 库
+        # target_link_libraries(): 为指定目标链接库
+        # ${Boost_LIBRARIES}: 自动包含所有找到的 Boost 库
+        # --------------------------------------------------------------------
+        target_link_libraries(adk
+            ${Boost_LIBRARIES}
+            rt              # 实时库 (Linux)
+            pthread         # POSIX 线程库
+        )
+        
+        # 可选：链接 SSH 库 (如果需要)
+        # find_package(OpenSSL REQUIRED)
+        # target_link_libraries(adk OpenSSL::SSL OpenSSL::Crypto)
+        
+        # 设置目标属性
+        set_target_properties(adk PROPERTIES
+            CLEAN_DIRECT_OUTPUT 1           # 清理直接输出
+            OUTPUT_NAME "adk"               # 输出名称
+            ARCHIVE_OUTPUT_DIRECTORY "${LIBRARY_OUTPUT_PATH}"
+        )
+        
+        # 安装规则
+        install(TARGETS adk
+            ARCHIVE DESTINATION lib
+            LIBRARY DESTINATION lib
+            RUNTIME DESTINATION bin
+        )
+    endif()
+    
+    # ------------------------------------------------------------------------
+    # 15. 静态库版本 (带完整依赖和打包版本)
+    # 创建一个包含所有依赖的静态库版本，包括 src_pack 中的打包代码
+    # ------------------------------------------------------------------------
+    add_library(adk_static STATIC ${adk_SRC} ${adk_SRC_PACK} ${adk_HDR})
+    
+    # 设置编译定义 (宏)
+    target_compile_definitions(adk_static PUBLIC
+        ADK_LOG_USE_BOOST_LOG     # 使用 Boost 日志
+        AMI_LINUX                 # Linux 平台
+        RMM_UNIX                  # Unix 系统
+        LOG_THRESHOLD=2           # 日志阈值
+        BOOST_LOG_DYN_LINK=1      # Boost 日志动态链接
+        BOOST_LOG_SETUP_DYN_LINK=1
+        BOOST_SYSTEM_DYN_LINK=1
+        BOOST_SYSTEM_NO_DEPRECATED=1
+        BOOST_THREAD_BUILD_DLL=1
+        BOOST_THREAD_POSIX
+        BOOST_THREAD_USE_DLL=1
+        BOOST_FILESYSTEM_DYN_LINK=1
+        BOOST_PROGRAM_OPTIONS_DYN_LINK=1
+        BOOST_DATE_TIME_DYN_LINK=1
+        BOOST_CHRONO_DYN_LINK=1
+        BOOST_ATOMIC_DYN_LINK=1
+        BOOST_HAS_ICU=1
+        BOOST_LOG_USE_AVX2
+        BOOST_LOG_USE_SSSE3
+        DATE_TIME_INLINE
+        NDEBUG                    # 禁用断言 (Release 模式)
+    )
+    
+    # 链接依赖库
+    target_link_libraries(adk_static
+        ${Boost_LIBRARIES}
+        rt
+        pthread
+    )
+    
+    # 设置输出名称和属性
+    set_target_properties(adk_static PROPERTIES
+        OUTPUT_NAME "adk_static"
+        CLEAN_DIRECT_OUTPUT 1
+        ARCHIVE_OUTPUT_DIRECTORY "${LIBRARY_OUTPUT_PATH}"
+    )
+    
+    # 设置位置无关代码
+    set_property(TARGET adk_static PROPERTY POSITION_INDEPENDENT_CODE OFF)
+    
+    # 安装规则
+    install(TARGETS adk_static
+        ARCHIVE DESTINATION lib
+        LIBRARY DESTINATION lib
+    )
+    
+    # ------------------------------------------------------------------------
+    # 16. 安装头文件
+    # install(): 安装文件到指定目录
+    # ------------------------------------------------------------------------
+    install(DIRECTORY include/
+        DESTINATION include
+        FILES_MATCHING PATTERN "*.h"
+    )
+    
+    # ------------------------------------------------------------------------
+    # 17. 生成 pkg-config 文件
+    # configure_file(): 配置模板文件
+    # ------------------------------------------------------------------------
+    # 可选：生成 pkg-config 文件以便其他项目使用
+    # configure_file(
+    #     ${CMAKE_CURRENT_SOURCE_DIR}/adk.pc.in
+    #     ${CMAKE_CURRENT_BINARY_DIR}/adk.pc
+    #     @ONLY
+    # )
+    # install(FILES ${CMAKE_CURRENT_BINARY_DIR}/adk.pc
+    #     DESTINATION lib/pkgconfig
+    # )
+    
+    message(STATUS "")
+    message(STATUS "=== ADK Configuration Summary ===")
+    message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+    message(STATUS "Install prefix: ${CMAKE_INSTALL_PREFIX}")
+    message(STATUS "Boost version: ${Boost_VERSION}")
+    message(STATUS "C++ compiler: ${CMAKE_CXX_COMPILER}")
+    message(STATUS "C++ flags: ${CMAKE_CXX_FLAGS}")
+    if(DEFINED ARM)
+        message(STATUS "ARM build: YES (RUDP disabled)")
+    else()
+        message(STATUS "ARM build: NO (RUDP enabled)")
+    endif()
+    message(STATUS "=================================")
+    message(STATUS "")
+    
+else()
+    message(FATAL_ERROR "Boost library not found! Please install Boost development packages.")
+endif()
+
+# ----------------------------------------------------------------------------
+# 18. 测试支持 (可选)
+# enable_testing(): 启用 CTest 测试支持
+# add_subdirectory(): 添加子目录
+# ----------------------------------------------------------------------------
+# 可选：启用测试
+# option(BUILD_TESTS "Build test programs" OFF)
+# if(BUILD_TESTS)
+#     enable_testing()
+#     add_subdirectory(test)
+# endif()
+
+# ----------------------------------------------------------------------------
+# 19. 单元测试 (可选)
+# ----------------------------------------------------------------------------
+# 可选：编译单元测试
+# option(BUILD_UNITTESTS "Build unit tests" OFF)
+# if(BUILD_UNITTESTS)
+#     add_subdirectory(unittest)
+# endif()
+
+# ----------------------------------------------------------------------------
+# 20. 性能测试 (可选)
+# ----------------------------------------------------------------------------
+# 可选：编译性能测试程序
+# option(BUILD_BENCHMARKS "Build benchmark programs" OFF)
+# if(BUILD_BENCHMARKS)
+#     add_subdirectory(benchmark_test)
+# endif()

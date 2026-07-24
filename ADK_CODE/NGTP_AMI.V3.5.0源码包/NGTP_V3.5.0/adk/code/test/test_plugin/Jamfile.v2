@@ -1,0 +1,63 @@
+import os ;
+import path ;
+
+path-constant CWD : . ;
+path-constant TPL_PATH : ../../../../3rd ;
+
+local BOOST_ROOT = [ os.environ BOOST_ROOT ] ;
+if ! $(BOOST_ROOT)
+{
+    BOOST_ROOT = $(TPL_PATH)/boost_1_62_0 ;
+}
+ECHO "Boost lib path is: " $(BOOST_ROOT) ;
+# 强制其他模块都使用一致的Boost版本
+modules.poke : BOOST_ROOT : $(BOOST_ROOT) ;
+
+use-project /boost : $(BOOST_ROOT) ;
+use-project /adk : ../../ ;
+
+alias dependencies
+    : /boost/log//boost_log
+      /boost/log//boost_log_setup
+      /boost/locale//boost_locale
+      /boost/thread//boost_thread
+      /boost/filesystem//boost_filesystem
+    ;
+
+      
+lib share_account 
+  : ./share_account.cpp
+    ../..//adk
+  : <include>./plugin/
+    <include>../
+    <threading>multi
+    <implicit-dependency>/boost//headers
+    <debug-symbols>on
+  : <include>../
+    <include>./plugin/
+  ;
+
+lib fund_market
+    : ./fund_market.cpp
+      ../..//adk
+    : <include>./plugin/
+      <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+    : <include>../
+      <include>./plugin/
+    ;
+
+exe test_plugin
+    : ./plugin_main.cpp
+      ../..//adk
+    : <include>../../include/
+      <include>./
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <linkflags>-ldl
+    : 
+    ;
+

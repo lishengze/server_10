@@ -1,0 +1,14 @@
+exe demo
+    : demo.cpp
+      ..//aaf
+    ;
+
+exe demo2
+    : demo2.cpp
+      ..//aaf
+    ;
+
+exe follower_demo
+    : follower_demo.cpp
+      ..//aaf
+    ;

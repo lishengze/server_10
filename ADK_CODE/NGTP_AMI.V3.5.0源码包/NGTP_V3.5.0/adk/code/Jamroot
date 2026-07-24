@@ -1,0 +1,121 @@
+import os ;
+import path ;
+
+path-constant CWD : . ;
+# 第三方工具库目录
+local TPL_PATH = [ os.environ TPL_PATH ] ;
+if ! $(TPL_PATH)
+{
+    path-constant TPL_PATH : ./3rd ;
+}
+
+ECHO "<adk> 3rd path is: " $(TPL_PATH) ;
+
+# 引入Boost库
+local BOOST_ROOT = [ os.environ BOOST_ROOT ] ;
+if ! $(BOOST_ROOT)
+{
+    path-constant BOOST_ROOT : $(TPL_PATH)/boost_1_62_0 ;
+}
+
+ECHO "<adk> Boost lib path is: " $(BOOST_ROOT) ;
+# 强制其他模块都使用一致的Boost版本
+modules.poke : BOOST_ROOT : $(BOOST_ROOT) ;
+
+local AMI_LINK_FLAG = [ os.environ AMI_LINK_FLAG ] ;
+if ! $(AMI_LINK_FLAG)
+{
+    AMI_LINK_FLAG = "" ;
+}
+ECHO "linkflag is: " $(AMI_LINK_FLAG) ;
+
+use-project /boost : $(BOOST_ROOT) ;
+
+project adk
+    : requirements
+      <cxxflags>-std=c++11
+    : default-build
+      release
+      <threading>multi
+    ;
+
+# libentry_wrapper always in debug mode
+lib entry_wrapper
+    : $(CWD)/src/entry_wrapper.cpp
+      $(CWD)/src_pack/entry_wrapper_pack.cpp
+      dependencies
+    : <include>$(CWD)/include
+      <implicit-dependency>/boost//headers
+      <cxxflags>"-O0 -ggdb"
+    :
+    : <include>$(CWD)/include
+    ;
+
+alias dependencies
+    : /boost/log//boost_log
+      /boost/log//boost_log_setup
+      /boost/locale//boost_locale
+      /boost/filesystem//boost_filesystem
+      /boost/program_options//boost_program_options
+      /boost/date_time//boost_date_time
+      /boost/thread//boost_thread
+      /boost/regex//boost_regex
+    ;
+
+lib adk
+    : [ path.glob-tree $(CWD)/src : *.cpp : entry_wrapper.cpp exanic_cap.cpp ]
+      [ path.glob-tree $(CWD)/src_pack : *.cpp : entry_wrapper_pack.cpp ]
+      entry_wrapper
+      dependencies
+    : <include>$(CWD)/include
+      <include>$(CWD)/include/adk/rdma
+      <include>$(CWD)/src/io_engine/tcp_verbs
+      <include>$(CWD)/3rd/
+      <implicit-dependency>/boost//headers
+#      <cxxflags>-march=native
+      <cxxflags>-ftemplate-depth=256
+      <linkflags>$(AMI_LINK_FLAG)
+    :
+    : <include>$(CWD)/include
+      <include>$(CWD)/include/adk/rdma
+#      <cxxflags>-march=native
+      <variant>adk_debug:<define>adk=adk_impl
+      <variant>adk_test:<define>adk=adk_impl
+      <variant>ami_test:<define>adk=adk_impl
+      <variant>debug:<define>adk=adk_impl
+      <variant>release:<define>adk=adk_impl
+      <variant>trace:<define>adk=adk_impl
+      <library>entry_wrapper
+      <library>dependencies
+      <linkflags>-ldl
+      <link>shared:<linkflags>"-Wl,-Bdynamic -lz"
+    ;
+
+variant adk_debug
+    :
+    : <define>__ADK_DEBUG__
+    ;
+
+variant adk_test
+    :
+    : <define>__ADK_TEST__
+      <define>__ADK_MQM_FAILURE_TEST__
+      <define>__ADK_MP_FAILURE_TEST__
+      <define>__ADK_SHMW_FAILURE_TEST__
+    ;
+
+# test for adk implement
+variant adk_pack 
+    : 
+    : <define>__ADK_DEBUG__
+    ;
+
+explicit stage ;
+install stage
+    : $(CWD)//adk
+    : <variant>release:<location>./lib/release
+      <variant>debug:<location>./lib/debug
+    ;
+
+explicit unittest ;
+alias unittest : $(CWD)/unittest ;

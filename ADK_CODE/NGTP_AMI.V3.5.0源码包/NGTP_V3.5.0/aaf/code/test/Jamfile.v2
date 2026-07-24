@@ -1,0 +1,201 @@
+exe test_generic_fw
+    : test_generic_fw.cpp
+      ..//aaf
+    : <include>../include
+      <implicit-dependency>/boost//headers
+      <threading>multi
+      <linkflags>-Wl,--no-as-needed
+      <linkflags>-lrt
+    ;
+
+exe test_generic_fw_v2
+    : test_generic_fw_v2.cpp
+      ..//aaf
+    : <include>../include
+      <implicit-dependency>/boost//headers
+      <threading>multi
+      <linkflags>-Wl,--no-as-needed
+      <linkflags>-lrt
+    ;
+
+exe test_generic_fw_v3
+    : test_generic_fw_v3.cpp
+      ..//aaf
+    : <include>../include
+      <implicit-dependency>/boost//headers
+      <threading>multi
+      <linkflags>-Wl,--no-as-needed
+      <linkflags>-lrt
+    ;
+
+exe test_generic_fw_v4
+    : test_generic_fw_v4.cpp
+      ..//aaf
+    : <include>../include
+      <implicit-dependency>/boost//headers
+      <threading>multi
+      <linkflags>-Wl,--no-as-needed
+      <linkflags>-lrt
+    ;
+
+exe test_generic_fw_log
+    : test_generic_fw_log.cpp
+      ..//aaf
+    : <include>../include
+      <implicit-dependency>/boost//headers
+      <threading>multi
+      <linkflags>-Wl,--no-as-needed
+      <linkflags>-lrt
+    ;
+
+exe test_ami_app
+    : test_ami_app.cpp
+      ..//aaf
+    : <include>../include
+      <implicit-dependency>/boost//headers
+      <threading>multi
+      <linkflags>-Wl,--no-as-needed
+      <linkflags>-lrt
+    ;
+
+# exe test_ami_app_lbg
+#     : test_ami_app_lbg.cpp
+#       ..//aaf
+#     : <include>../include
+#       <implicit-dependency>/boost//headers
+#       <threading>multi
+#       <linkflags>-Wl,--no-as-needed
+#       <linkflags>-lrt
+#     ;
+
+exe test_ami_app_dynamic_change_ll
+    : test_ami_app_dynamic_change_ll.cpp
+      ..//aaf
+    : <include>../include
+      <implicit-dependency>/boost//headers
+      <threading>multi
+      <linkflags>-Wl,--no-as-needed
+      <linkflags>-lrt
+    ;
+
+exe test_arg_exception
+    : test_arg_exception.cpp
+      ..//aaf
+    : <include>../include
+      <implicit-dependency>/boost//headers
+      <threading>multi
+      <linkflags>-Wl,--no-as-needed
+      <linkflags>-lrt
+    ;
+
+exe test_master_slave
+    : test_master_slave.cpp
+      ..//aaf
+    : <include>../include
+      <implicit-dependency>/boost//headers
+      <threading>multi
+      <linkflags>-Wl,--no-as-needed
+      <linkflags>-lrt
+    ;
+
+exe test_member_lost_event
+    : test_member_lost_event.cpp
+      ..//aaf
+    : <include>../include
+      <implicit-dependency>/boost//headers
+      <threading>multi
+      <linkflags>-Wl,--no-as-needed
+      <linkflags>-lrt
+    ;
+
+exe test_ms_tc
+    : test_ms_tc.cpp
+      ..//aaf
+    : <include>../include
+      <implicit-dependency>/boost//headers
+      <threading>multi
+      <linkflags>-Wl,--no-as-needed
+      <linkflags>-lrt
+    ;
+
+exe test_disable_context
+    : test_disable_context.cpp
+      ..//aaf
+    : <include>../include
+      <implicit-dependency>/boost//headers
+      <threading>multi
+      <linkflags>-Wl,--no-as-needed
+      <linkflags>-lrt
+    ;
+
+exe test_change_member
+    : test_change_member_event.cpp
+      ..//aaf
+    : <include>../include
+      <implicit-dependency>/boost//headers
+      <threading>multi
+      <linkflags>-Wl,--no-as-needed
+      <linkflags>-lrt
+    ;
+
+exe test_seq_lock
+    : test_seq_lock.cpp
+      ..//aaf
+    : <include>../include
+      <implicit-dependency>/boost//headers
+      <threading>multi
+      <linkflags>-Wl,--no-as-needed
+      <linkflags>-lrt
+    ;
+
+exe test_application_core
+    : test_application_core.cpp
+      ..//aaf
+    : <include>../include
+      <implicit-dependency>/boost//headers
+      <threading>multi
+      <linkflags>-Wl,--no-as-needed
+      <linkflags>-lrt
+    ;
+
+exe sharding_follow_forwarder_demo
+    : sharding_follow_forwarder_demo.cpp
+      ..//aaf
+    : <include>../include
+      <implicit-dependency>/boost//headers
+      <threading>multi
+      <linkflags>-Wl,--no-as-needed
+      <linkflags>-lrt
+    ;
+
+exe sharding_follow_publisher_subscriber_demo
+    : sharding_follow_publisher_subscriber_demo.cpp
+      ..//aaf
+    : <include>../include
+      <implicit-dependency>/boost//headers
+      <threading>multi
+      <linkflags>-Wl,--no-as-needed
+      <linkflags>-lrt
+    ;
+
+explicit sharding_follow_forwarder_demo_static ;
+exe sharding_follow_forwarder_demo_static
+    : sharding_follow_forwarder_demo.cpp
+      ..//aaf/<link>static
+    : <include>../include
+      <implicit-dependency>/boost//headers
+      <threading>multi
+      <linkflags>-Wl,--no-as-needed
+      <linkflags>"-lrt -static-libstdc++ -static-libgcc "
+    ;
+
+explicit sharding_follow_publisher_subscriber_demo_static ;
+exe sharding_follow_publisher_subscriber_demo_static
+    : sharding_follow_publisher_subscriber_demo.cpp
+      ..//aaf/<link>static
+    : <include>../include
+      <implicit-dependency>/boost//headers
+      <threading>multi
+      <linkflags>-Wl,--no-as-needed
+      <linkflags>"-lrt -static-libstdc++ -static-libgcc "
+    ;

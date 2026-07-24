@@ -1,0 +1,68 @@
+import path ;
+
+path-constant TPL_PATH : . ;
+
+## CPU
+local is_x86 = [ SHELL "arch | grep 'x86' " ] ;
+if $(is_x86)
+{
+   constant ARCH : x86 ;
+}
+else
+{
+   constant ARCH : arm ;
+}
+
+## 操作系统
+is_redhat = [ SHELL "cat /etc/os-release | grep 'Red Hat' " ] ;
+is_ubuntu = [ SHELL "cat /etc/os-release | grep 'Ubuntu' " ] ;
+is_kylin = [ SHELL "cat /etc/os-release | grep 'Kylin' " ] ;
+is_gentoo = [ SHELL "cat /etc/os-release | grep 'Gentoo' " ] ;
+is_debian = [ SHELL "cat /etc/os-release | grep 'Debian' " ] ;
+is_centos = [ SHELL "cat /etc/os-release | grep 'CentOS' " ] ;
+
+local os_ver = [ SHELL "cat /etc/os-release | grep 'PRETTY_NAME' | tr -cd '[0-9.]' | awk -F. '{print $1}' | xargs echo -n " ] ;
+
+if $(is_redhat)
+{
+    os_ver = [ SHELL "cat /etc/redhat-release | tr -cd '[0-9.]' | awk -F. '{print $1}' | xargs echo -n " ] ;
+    constant OS_VERSION : rhel_$(os_ver) ;
+}
+else if $(is_ubuntu)
+{
+   constant OS_VERSION : ubuntu_$(os_ver) ;
+}
+else if $(is_kylin)
+{
+    constant OS_VERSION : kylin_$(os_ver) ;
+}
+else if $(is_gentoo)
+{
+   os_ver = [ SHELL "cat /etc/gentoo-release | tr -cd '[0-9.]' | awk -F. '{print $1}' | xargs echo -n " ] ;
+   constant OS_VERSION : gentoo_$(os_ver) ;
+}
+else if $(is_debian)
+{
+    constant OS_VERSION : debian_$(os_ver) ;
+}
+else if $(is_centos)
+{
+    constant OS_VERSION : centos_$(os_ver) ;
+}
+else
+{
+   constant OS_VERSION : unkown_$(os_ver) ;
+}
+
+##编译器
+constant GCC : [ SHELL "gcc -dumpversion | awk -F. '{print $1}' | xargs echo -n " ] ;
+constant GCC_VERSION : "gcc_"$(GCC) ;
+
+
+project 3rd
+    : requirements
+      <cxxflags>-std=c++11
+    : default-build
+      release
+      <threading>multi
+    ;

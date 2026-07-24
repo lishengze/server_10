@@ -1,0 +1,33 @@
+import os ;
+import path ;
+
+use-project /adk : ../ ;
+
+alias dependencies
+    : /boost/filesystem//boost_filesystem
+      /boost/program_options//boost_program_options
+    ;
+
+exe tcp_client
+    : tcp_engine_benchmark/client.cpp
+      ..//adk
+    : <include>./include/
+      <include>../include/
+      <implicit-dependency>/boost//headers
+      release
+      <debug-symbols>on
+      <threading>multi
+    : <include>../
+    ;
+
+exe tcp_server
+    : tcp_engine_benchmark/server.cpp
+      ..//adk
+    : <include>./include/
+      <include>../include/
+      <implicit-dependency>/boost//headers
+      release
+      <debug-symbols>on
+      <threading>multi
+    : <include>../
+    ;

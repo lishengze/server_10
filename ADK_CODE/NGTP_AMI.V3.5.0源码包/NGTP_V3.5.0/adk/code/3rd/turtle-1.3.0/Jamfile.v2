@@ -1,0 +1,7 @@
+alias turtle
+    : #no source
+	: #no build requirements
+	: #no default build
+	: <include>./include
+	  <define>MOCK_THREAD_SAFE
+	;

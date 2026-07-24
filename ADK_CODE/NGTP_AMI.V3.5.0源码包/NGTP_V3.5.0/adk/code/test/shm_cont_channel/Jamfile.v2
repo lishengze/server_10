@@ -1,0 +1,69 @@
+import os ;
+import path ;
+
+path-constant CWD : . ;
+path-constant TPL_PATH : ../../../../3rd ;
+
+local BOOST_ROOT = [ os.environ BOOST_ROOT ] ;
+if ! $(BOOST_ROOT)
+{
+    BOOST_ROOT = $(TPL_PATH)/boost_1_62_0 ;
+}
+ECHO "Boost lib path is: " $(BOOST_ROOT) ;
+# 强制其他模块都使用一致的Boost版本
+modules.poke : BOOST_ROOT : $(BOOST_ROOT) ;
+
+use-project /boost : $(BOOST_ROOT) ;
+
+alias dependencies
+    : /boost/log//boost_log
+      /boost/log//boost_log_setup
+      /boost/locale//boost_locale
+      /boost/thread//boost_thread
+      /boost/filesystem//boost_filesystem
+    ;
+
+exe test_index_allocator
+    : test_index_allocator.cpp
+      ../..//adk
+    : <include>../../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+    ;
+
+exe test_shm_cont_channel_v1
+    : test_shm_cont_channel_v1.cpp
+      ../..//adk
+    : <include>../../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+    ;
+
+exe test_shm_cont_channel_agent
+    : test_shm_cont_channel_agent.cpp
+      ../..//adk
+    : <include>../../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+    ;
+
+exe test_shm_cont_channel_proxy
+    : test_shm_cont_channel_proxy.cpp
+      ../..//adk
+    : <include>../../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+    ;
+
+exe test_cont_memory_perf
+    : test_cont_memory_perf.cpp
+      ../..//adk
+    : <include>../../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+    ;

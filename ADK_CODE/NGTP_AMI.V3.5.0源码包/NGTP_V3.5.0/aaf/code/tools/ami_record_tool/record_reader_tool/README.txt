@@ -1,0 +1,6 @@
+record_read_tool是一个用于展示如何从AMI的持久化数据目录中读取Rx方向，Tx方向的持久化消息
+的demo(不依赖于AMI的任何实现，和AMI完全独立)，可作为其他语言读取持久化消息的参考。结构：
+recorder_data_util.h:主要包括读取持久化消息时需要用到的消息结构
+recorder_data_reader.h:主要包括用于展示如何读取持久化消息时的接口
+record_read_tool根据命令行输入的参数，读取Rx或Tx方向的持久化消息并将消息打印出来(如果持久化消息不是
+字符串，可能无法显示打印)

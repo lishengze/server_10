@@ -1,0 +1,70 @@
+import os ;
+import path ;
+
+path-constant CWD : . ;
+# 第三方工具库目录
+path-constant TPL_PATH : [ os.environ BOOST_ROOT ] ;
+
+local HOME = [ os.environ HOME ] ;
+local AMI_HOME = [ os.environ AMI_HOME ] ;
+if ! $(AMI_HOME)
+{
+    AMI_HOME = $(HOME)/AMI/ ;
+}
+ECHO "AMI_HOME: " $(AMI_HOME) ;
+
+# 引入Boost库
+BOOST_ROOT = [ os.environ BOOST_ROOT ] ;
+if ! $(BOOST_ROOT)
+{
+    BOOST_ROOT = $(HOME)/boost_1_62_0 ;
+}
+ECHO "Boost lib path is: " $(BOOST_ROOT) ;
+# 强制其他模块都使用一致的Boost版本
+modules.poke : BOOST_ROOT : $(BOOST_ROOT) ;
+use-project /boost : $(BOOST_ROOT) ;
+use-project /adk : ../../adk/code ;
+
+lib ami
+  :
+  : <file>$(AMI_HOME)/lib64/libami.so
+  :
+  : <include>$(AMI_HOME)/include
+  ;
+
+project aaf
+    : requirements
+      <cxxflags>-std=c++11
+      <define>ADK_LOG_USE_BOOST_LOG
+    : default-build
+      release
+      <threading>multi
+    ;
+
+alias dependencies
+    : /boost/log//boost_log
+      /boost/log//boost_log_setup
+      /boost/locale//boost_locale
+      /boost/thread//boost_thread
+      /boost/filesystem//boost_filesystem
+      /boost/program_options//boost_program_options
+      /boost/regex//boost_regex
+      /adk//adk
+    ;
+
+lib aaf
+    : [ path.glob-tree $(CWD)/src/util : *.cpp ]
+      [ path.glob-tree $(CWD)/src : *.cpp ]
+      [ path.glob-tree $(CWD)/sharding/ : *.cpp ]
+      dependencies
+      ami
+    : <include>$(CWD)/include
+      <include>../../adk/code/include/
+      <implicit-dependency>/boost//headers
+    :
+    : <define>ADK_LOG_USE_BOOST_LOG
+      <include>$(CWD)/include
+      <include>../../adk/code/include/
+      <library>dependencies
+      <library>ami
+    ;

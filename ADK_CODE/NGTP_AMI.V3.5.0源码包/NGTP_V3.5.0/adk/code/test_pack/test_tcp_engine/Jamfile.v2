@@ -1,0 +1,109 @@
+import os ;
+import path ;
+
+path-constant CWD : . ;
+path-constant TPL_PATH : ../../../../3rd ;
+
+local BOOST_ROOT = [ os.environ BOOST_ROOT ] ;
+if ! $(BOOST_ROOT)
+{
+    BOOST_ROOT = $(TPL_PATH)/boost_1_62_0 ;
+}
+ECHO "Boost lib path is: " $(BOOST_ROOT) ;
+# 强制其他模块都使用一致的Boost版本
+modules.poke : BOOST_ROOT : $(BOOST_ROOT) ;
+
+use-project /boost : $(BOOST_ROOT) ;
+use-project /adk : ../../ ;
+
+alias dependencies
+    : /boost/log//boost_log
+      /boost/log//boost_log_setup
+      /boost/locale//boost_locale
+      /boost/thread//boost_thread
+      /boost/filesystem//boost_filesystem
+    ;
+
+exe test_tcp_engine_v1
+    : test_tcp_engine_v1.cpp
+      /adk//adk/<variant>adk_pack
+    :  <include>../../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../../
+    ;
+	
+exe test_tcp_engine_v2
+    : test_tcp_engine_v2.cpp
+      /adk//adk/<variant>adk_pack
+    :  <include>../../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../../
+    ;
+	
+exe test_tcp_engine_v3
+    : test_tcp_engine_v3.cpp
+      /adk//adk/<variant>adk_pack
+    :  <include>../../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../../
+    ;
+
+exe test_tcp_engine_recver
+    : test_tcp_engine_recver.cpp
+      /adk//adk/<variant>adk_pack
+    :  <include>../../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../../
+    ;
+
+exe test_tcp_engine_v4
+    : test_tcp_engine_v4.cpp
+      /adk//adk/<variant>adk_pack
+    :  <include>../../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../../
+    ;
+
+exe test_tcp_engine_v5
+    : test_tcp_engine_v5.cpp
+      /adk//adk/<variant>adk_pack
+    : <include>../../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../../
+    ;
+
+exe test_tcp_engine_v6
+    : test_tcp_engine_v6.cpp
+      /adk//adk/<variant>adk_pack
+    : <include>../../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../../
+    ;

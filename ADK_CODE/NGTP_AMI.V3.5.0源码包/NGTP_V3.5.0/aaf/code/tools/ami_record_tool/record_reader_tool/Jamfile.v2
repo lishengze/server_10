@@ -1,0 +1,9 @@
+exe record_reader_tool
+    : record_reader_tool.cpp
+      recorder_data_reader.cpp
+      /boost/filesystem//boost_filesystem
+      /boost/program_options//boost_program_options
+    : <threading>multi
+      <implicit-dependency>/boost//headers
+      <include>$(CWD)
+    ;

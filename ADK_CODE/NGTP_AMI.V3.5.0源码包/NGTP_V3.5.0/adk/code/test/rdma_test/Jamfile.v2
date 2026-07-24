@@ -1,0 +1,111 @@
+import os ;
+import path ;
+
+path-constant CWD : . ;
+path-constant TPL_PATH : ../../../../3rd ;
+
+local BOOST_ROOT = [ os.environ BOOST_ROOT ] ;
+if ! $(BOOST_ROOT)
+{
+    BOOST_ROOT = $(TPL_PATH)/boost_1_62_0 ;
+}
+ECHO "Boost lib path is: " $(BOOST_ROOT) ;
+# 强制其他模块都使用一致的Boost版本
+modules.poke : BOOST_ROOT : $(BOOST_ROOT) ;
+
+use-project /boost : $(BOOST_ROOT) ;
+use-project /adk : ../../ ;
+
+alias dependencies
+    : /boost/log//boost_log
+      /boost/log//boost_log_setup
+      /boost/locale//boost_locale
+      /boost/thread//boost_thread
+      /boost/filesystem//boost_filesystem
+    ;
+
+exe test_rdma_udp_pinger
+    : test_rdma_udp_pinger.cpp
+      //adk
+    : <include>../../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../../
+    ;
+	
+exe test_rdma_udp_ponger
+    : test_rdma_udp_ponger.cpp
+      //adk
+    : <include>../../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../../
+    ;
+
+exe test_rdma_mc_pinger
+    : test_rdma_mc_pinger.cpp
+      //adk
+    : <include>../../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../../
+    ;
+
+exe test_rdma_mc_ponger
+    : test_rdma_mc_ponger.cpp
+      //adk
+    : <include>../../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../../
+    ;
+
+exe test_rdma_raw_packet
+    : test_rdma_raw_packet.cpp
+      //adk
+    : <include>../../
+      <cxxflags>-g3
+      <linkflags>-libverbs
+      <linkflags>-lrdmacm
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../../
+    ;
+
+exe test_rdma_raw_packet_rx
+    : test_rdma_raw_packet_rx.cpp
+      //adk
+    : <include>../../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../../
+    ;
+
+exe test_rdma_raw_packet_tx
+    : test_rdma_raw_packet_tx.cpp
+      //adk
+    : <include>../../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../../
+    ;

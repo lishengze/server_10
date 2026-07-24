@@ -1,0 +1,5 @@
+bin
+lib/
+.vscode/
+src/exa_prepare.c
+src/libexanic.a

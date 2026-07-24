@@ -1,0 +1,10 @@
+import path ;
+path-constant CWD : . ;
+
+exe ami_bridge
+    : [ path.glob $(CWD)/src/ : *.cpp ]
+      ../..//aaf
+ 	  :
+ 	    <threading>multi
+      <implicit-dependency>/boost//headers      
+  ;

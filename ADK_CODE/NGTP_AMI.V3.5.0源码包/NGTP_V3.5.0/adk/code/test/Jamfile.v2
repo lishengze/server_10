@@ -1,0 +1,1771 @@
+import os ;
+import path ;
+
+path-constant CWD : . ;
+path-constant TPL_PATH : ../../../3rd ;
+
+local BOOST_ROOT = [ os.environ BOOST_ROOT ] ;
+if ! $(BOOST_ROOT)
+{
+    BOOST_ROOT = $(TPL_PATH)/boost_1_62_0 ;
+}
+ECHO "Boost lib path is: " $(BOOST_ROOT) ;
+# 强制其他模块都使用一致的Boost版本
+modules.poke : BOOST_ROOT : $(BOOST_ROOT) ;
+
+use-project /boost : $(BOOST_ROOT) ;
+use-project /adk : ../ ;
+
+alias dependencies
+    : /boost/log//boost_log
+      /boost/log//boost_log_setup
+      /boost/locale//boost_locale
+      /boost/thread//boost_thread
+      /boost/filesystem//boost_filesystem
+    ;
+
+project test_mem_pool
+    : requirements
+      <cxxflags>-std=c++11
+      <define>adk=adk_impl
+    : default-build
+      release
+      <threading>multi
+    ;
+
+exe test_record_msg
+    : test_record_msg.cpp
+      ..//adk
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+    : <include>../
+    ;
+
+exe test_record_msg_binary
+    : test_record_msg_binary.cpp
+      ..//adk/<variant>adk_debug
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <cxxflags>-std=c++11
+      <define>__ADK_DEBUG__
+      <define>ADK_LOG_OLD_INTERFACE
+      <define>ADK_LOG_USE_BOOST_LOG
+    : <include>../
+    ;
+
+exe test_record_msg_binary_v2
+    : test_record_msg_binary_v2.cpp
+      ..//adk
+      dependencies
+    : <debug-symbols>on
+    ;
+
+exe test_parse_cpu_list
+    : test_parse_cpu_list.cpp
+      ..//adk
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+    : <include>../
+    ;
+
+exe test_high_perf_clock
+    : test_high_perf_clock.cpp
+      ..//adk
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+    : <include>../
+    ;
+
+exe test_coarsness_clock
+    : test_coarsness_clock.cpp
+      ..//adk
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+    : <include>../
+    ;
+
+exe test_ami_queue_api_latency
+    : test_ami_queue_api_latency.cpp
+      ..//adk
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+    : <include>../
+    ;
+
+exe test_leaky_bucket
+    : test_leaky_bucket.cpp
+      ..//adk
+    : <include>../include/
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+    : <include>../
+    ;
+
+exe test_ami_queue_api_latency_stream
+    : test_ami_queue_api_latency_stream.cpp
+      ..//adk
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+    : <include>../
+    ;
+
+exe test_ami_queue_api_throughput
+    : test_ami_queue_api_throughput.cpp
+      ..//adk
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>SPSC_TEST=1
+      <define>VARIANT_TEST=1
+    : <include>../
+    ;
+
+exe test_coarsness_clock_v2
+    : test_coarsness_clock_v2.cpp
+      ..//adk
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+    : <include>../
+    ;
+
+exe test_throw_exception
+    : test_throw_exception.cpp
+      ..//adk
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+    : <include>../
+    ;
+
+exe test_util
+    : test_util.cpp
+      ..//adk
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+    : <include>../
+    ;
+
+exe test_mem_pool
+    : test_mem_pool.cpp
+      ..//adk
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+    : <include>../
+    ;
+
+actions translate
+{
+    mv translate.po old.po
+    xgettext -C --no-wrap \
+        -kADK_LOG_TRACE_AC_TF:1,\"log\ title\" \
+        -kADK_LOG_DEBUG_AC_TF:1,\"log\ title\" \
+        -kADK_LOG_INFO_AC_TF:1,\"log\ title\" \
+        -kADK_LOG_WARN_AC_TF:1,\"log\ title\" \
+        -kADK_LOG_ERROR_AC_TF:1,\"log\ title\" \
+        -kADK_LOG_FATAL_AC_TF:1,\"log\ title\" \
+        -kADK_LOG_TRACE_TF:2,\"log\ title\" \
+        -kADK_LOG_DEBUG_TF:2,\"log\ title\" \
+        -kADK_LOG_INFO_TF:2,\"log\ title\" \
+        -kADK_LOG_WARN_TF:2,\"log\ title\" \
+        -kADK_LOG_ERROR_TF:2,\"log\ title\" \
+        -kADK_LOG_FATAL_TF:2,\"log\ title\" \
+        -kADK_TRANSLATE \
+        test_log.cpp -o title.pot
+    msginit -i title.pot -l zh_CN.UTF-8 --no-translator -o title.po
+    xgettext -C --no-wrap \
+        -kADK_LOG_TRACE_AC_TF:2,\"log\ message\" \
+        -kADK_LOG_DEBUG_AC_TF:2,\"log\ message\" \
+        -kADK_LOG_INFO_AC_TF:2,\"log\ message\" \
+        -kADK_LOG_WARN_AC_TF:2,\"log\ message\" \
+        -kADK_LOG_ERROR_AC_TF:2,\"log\ message\" \
+        -kADK_LOG_FATAL_AC_TF:2,\"log\ message\" \
+        -kADK_LOG_TRACE_TF:3,\"log\ message\" \
+        -kADK_LOG_DEBUG_TF:3,\"log\ message\" \
+        -kADK_LOG_INFO_TF:3,\"log\ message\" \
+        -kADK_LOG_WARN_TF:3,\"log\ message\" \
+        -kADK_LOG_ERROR_TF:3,\"log\ message\" \
+        -kADK_LOG_FATAL_TF:3,\"log\ message\" \
+        test_log.cpp -o message.pot
+    msginit -i message.pot -l zh_CN.UTF-8 --no-translator --no-wrap -o message.po
+    msgcat --no-wrap -F title.po message.po -o translate.po
+    msgmerge --no-wrap old.po translate.po -o translate.po
+    mkdir zh_CN
+    mkdir zh_CN/LC_MESSAGES
+    msgfmt translate.po -o zh_CN/LC_MESSAGES/translate.mo
+    export TRANSLATE_PATH=$(CWD)
+}
+
+make $(CWD)/zh_CN/LC_MESSAGES/translate.mo
+    : test_log.cpp
+      translate.po
+    : translate ;
+
+exe test_log
+    : test_log.cpp
+      ..//adk
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>ADK_LOG_USE_BOOST_LOG
+      <dependency>$(CWD)/zh_CN/LC_MESSAGES/translate.mo
+    : <include>../
+    ;
+
+exe test_perf_measure
+    : test_perf_measure.cpp
+      ..//adk
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+    : <include>../
+    ;
+
+exe test_term_txt_colors
+    : test_term_txt_colors.cpp
+      ..//adk
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+    : <include>../
+    ;
+
+exe test_mem_pool_v2
+    : test_mem_pool_v2.cpp
+      ..//adk
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_rate_limit
+    : test_rate_limit.cpp
+      ..//adk
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_mem_pool_v3
+    : test_mem_pool_v3.cpp
+      ..//adk
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_mem_pool_v4
+    : test_mem_pool_v4.cpp
+      ..//adk
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_mem_pool_v5
+    : test_mem_pool_v5.cpp
+      ..//adk
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_mem_pool_v6
+    : test_mem_pool_v6.cpp
+      ..//adk
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_mqm_destroy
+    : test_mqm_destroy.cpp
+      ..//adk
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_obj_pool
+    : test_obj_pool.cpp
+      ..//adk
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+    : <include>../
+    ;
+
+exe test_obj_pool_as_cbuf
+    : test_obj_pool_as_cbuf.cpp
+      ..//adk
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+    : <include>../
+    ;
+
+exe test_share_mq
+    : test_share_mq.cpp
+      ..//adk
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_mpsc_share_mq_recovery
+    : test_mpsc_share_mq_recovery.cpp
+      ..//adk
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_mpsc_share_mqm_recovery
+    : test_mpsc_share_mqm_recovery.cpp
+      ..//adk/<variant>adk_test
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+      <define>__ADK_MQM_FAILURE_TEST__
+    : <include>../
+    ;
+
+exe test_mem_pool_recovery
+    : test_mem_pool_recovery.cpp
+      ..//adk/<variant>adk_test
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+      <define>__ADK_MP_FAILURE_TEST__
+    : <include>../
+    ;
+
+exe test_ticket_lock
+    : test_ticket_lock.cpp
+      ..//adk/<variant>adk_test
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+      <define>__ADK_MP_FAILURE_TEST__
+    : <include>../
+    ;
+
+exe test_on_exit
+    : test_on_exit.cpp
+      ..//adk
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_monitor
+    : test_monitor.cpp
+      ..//adk
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_monitor_env
+    : test_monitor_env.cpp
+      ..//adk
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_monitor_v3
+    : test_monitor_v3.cpp
+      ..//adk
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_mpsc_queue_v2
+    : test_mpsc_queue_v2.cpp
+      ..//adk
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+    : <include>../
+    ;
+
+exe test_mpsc_queue_v3
+    : test_mpsc_queue_v3.cpp
+      ..//adk
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+    : <include>../
+    ;
+
+exe test_rate_control
+    : test_rate_control.cpp
+      ..//adk
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_monitor_v2
+    : test_monitor_v2.cpp
+      ..//adk
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_monitor_http_agent
+    : test_monitor_http_agent.cpp
+      ..//adk
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe http_server
+    : http_server.cpp
+      ..//adk
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_http_agent
+    : test_http_agent.cpp
+      ..//adk
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_MPSC_shm_queue
+    : test_MPSC_shm_queue.cpp
+      ..//adk
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_spsc_lfmq
+    : test_spsc_lfmq.cpp
+      ..//adk
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_mpsc_recorder_scenario
+    : test_mpsc_recorder_scenario.cpp
+      ..//adk
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_mpsc_correct
+    : test_mpsc_correct.cpp
+      ..//adk
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_mpsc_perf
+    : test_mpsc_perf.cpp
+      ..//adk
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_mpsc_latency
+    : test_mpsc_latency.cpp
+      ..//adk
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_mpsc_latency_2
+    : test_mpsc_latency_2.cpp
+      ..//adk
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_atomic_op_lat
+    : test_atomic_op_lat.cpp
+      ..//adk
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_mpsc_exp
+    : test_mpsc_exp.cpp
+      ..//adk
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_sequential_queue
+    : test_sequential_queue.cpp
+      ..//adk
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_pipeline
+    : test_pipeline.cpp
+      ..//adk
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_pipeline_v2
+    : test_pipeline_v2.cpp
+      ..//adk
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_pipeline_recovery
+    : test_pipeline_recovery.cpp
+      ..//adk
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_backoff
+    : test_backoff.cpp
+      ..//adk
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_ptr_ctx
+    : test_ptr_ctx.cpp
+      ..//adk
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+	
+# ignore this test
+# see test_variant_queue_speed
+# exe test_spsc_variant_queue
+#     : test_spsc_variant_queue.cpp
+#       ..//adk
+#     : <include>../
+#       <threading>multi
+#       <implicit-dependency>/boost//headers
+#       <debug-symbols>on
+#       <define>__ADK_DEBUG__
+#     : <include>../
+#     ;
+
+exe test_spsc_variant_ptr_queue
+    : test_spsc_variant_ptr_queue.cpp
+      ..//adk
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_mpsc_variant_ptr_queue
+    : test_mpsc_variant_ptr_queue.cpp
+      ..//adk
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_mpsc_variant_queue
+    : test_mpsc_variant_queue.cpp
+      ..//adk
+   :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_spmc_variant_queue
+    : test_spmc_variant_queue.cpp
+      ..//adk
+   :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_variant_queue_speed
+    : test_variant_queue_speed.cpp
+      ..//adk
+   :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_variant_queue
+    : test_variant_queue.cpp
+      ..//adk
+   :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+	
+exe test_hash_map
+    : test_hash_map.cpp
+      ..//adk
+    : <include>../
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_variant_queue_delete
+    : test_variant_queue_delete.cpp
+      ..//adk
+   :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;  
+	
+exe test_wait_free_ring_buffer
+    : test_wait_free_ring_buffer.cpp
+      ..//adk
+   :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_convert
+    : test_convert.cpp
+      ..//adk
+   :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_convert_v2
+  : test_convert_v2.cpp
+    ..//adk
+  :  <include>../
+    <cxxflags>-g3
+    <threading>multi
+    <implicit-dependency>/boost//headers
+    <debug-symbols>on
+    <define>__ADK_DEBUG__
+  : <include>../
+  ;
+
+exe test_futex
+    : test_futex.cpp
+      ..//adk
+   :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ; 
+
+exe test_futex_v2
+    : test_futex_v2.cpp
+      ..//adk
+   :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ; 
+
+exe test_futex_fork
+    : test_futex_fork.cpp
+      ..//adk
+   :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ; 
+
+exe test_simple_event_manager
+    : test_simple_event_manager.cpp
+      ..//adk
+   :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ; 
+
+exe test_simple_event_manager_v2
+    : test_simple_event_manager_v2.cpp
+      ..//adk
+   :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ; 
+
+exe test_simple_event_manager_v3
+    : test_simple_event_manager_v3.cpp
+      ..//adk
+   :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ; 
+
+exe test_simple_event_manager_v4
+    : test_simple_event_manager_v4.cpp
+      ..//adk
+   :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ; 
+
+exe test_simple_event_manager_v5
+    : test_simple_event_manager_v5.cpp
+      ..//adk
+   :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ; 
+
+exe test_simple_event_manager_v6
+    : test_simple_event_manager_v6.cpp
+      ..//adk
+   :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ; 
+
+exe test_sequential_cache
+    : test_sequential_cache.cpp
+      ..//adk
+   :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ; 
+
+exe test_spsc_look_head
+    : test_spsc_look_head.cpp
+      ..//adk
+   :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ; 
+
+exe test_mpsc_look_head
+    : test_mpsc_look_head.cpp
+      ..//adk
+   :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ; 
+
+exe test_spsc_queue_length
+    : test_spsc_queue_length.cpp
+      ..//adk
+   :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_spsc_queue_latency
+    : test_spsc_queue_latency.cpp
+      ..//adk
+   :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_lock_free_unbounded_queue
+    : test_lock_free_unbounded_queue.cpp
+      ..//adk
+   :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ; 
+
+exe test_lock_free_msg_queue_v3
+    : test_lock_free_msg_queue_v3.cpp
+      ..//adk
+   :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_lock_free_variant_queue_v3
+    : test_lock_free_variant_queue_v3.cpp
+      ..//adk
+   :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_lock_free_unbounded_queue_v2
+    : test_lock_free_unbounded_queue_v2.cpp
+      ..//adk
+   :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ; 
+
+exe test_lock_free_unbounded_queue_v3
+    : test_lock_free_unbounded_queue_v3.cpp
+      ..//adk
+   :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ; 
+
+exe test_memory_pool_variant
+    : test_memory_pool_variant.cpp
+      ..//adk
+   :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_memory_pool_variant_v2
+    : test_memory_pool_variant_v2.cpp
+      ..//adk
+   :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_thread_optimize
+    : test_thread_optimize.cpp
+      ..//adk
+   :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ; 
+
+exe test_thread_pool
+    : test_thread_pool.cpp
+      ..//adk
+   :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ; 
+
+exe test_thread_pool_v2
+    : test_thread_pool_v2.cpp
+      ..//adk
+   :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ; 
+
+exe test_thread_pool_v3
+    : test_thread_pool_v3.cpp
+      ..//adk
+   :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ; 
+
+exe test_lw_spin_lock
+    : test_lw_spin_lock.cpp
+      ..//adk
+   :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ; 
+
+exe test_atomic
+    : test_atomic.cpp
+      ..//adk
+    :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ; 
+
+exe test_token_buckets
+    : test_token_buckets.cpp
+      ..//adk
+    :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_token_buckets_v2
+    : test_token_buckets_v2.cpp
+      ..//adk
+   :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_token_buckets_high_performance
+    : test_token_buckets_high_performance.cpp
+      ..//adk
+   :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_fork_run
+    : test_fork_run.cpp
+      ..//adk
+    :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_spsc_sequence_enqueue
+    : test_spsc_sequence_enqueue.cpp
+      ..//adk
+    :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_pipeline_reorder
+    : test_pipeline_reorder.cpp
+      ..//adk
+    :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_pipeline_v3
+    : test_pipeline_v3.cpp
+      ..//adk
+    :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_pipeline_v4
+    : test_pipeline_v4.cpp
+      ..//adk
+    : <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_pipeline_latency
+    : test_pipeline_latency.cpp
+      ..//adk
+    :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_pipeline_latency_v2
+    : test_pipeline_latency_v2.cpp
+      ..//adk
+    :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_hex_dump
+    : test_hex_dump.cpp
+      ..//adk
+    :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_thread
+    : test_thread.cpp
+      test_thread1.cpp
+      ..//adk
+    :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_thread_reference
+    : test_thread_reference.cpp
+      test_thread_impl.cpp
+      ..//adk
+    :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_thread_cache_msg
+    : test_thread_cache_msg.cpp
+      ..//adk
+    :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_thread_cache_msg_strong
+    : test_thread_cache_msg_strong.cpp
+      ..//adk
+    :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_thread_noblock
+    : test_thread_noblock.cpp
+      ..//adk
+    :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_thread_share
+    : test_thread_share.cpp
+      ..//adk
+    :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_ggc
+    : test_ggc.cpp
+      ..//adk
+    :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_thread_memory_leak
+    : test_thread_memory_leak.cpp
+      ..//adk
+    :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+
+exe test_ggc_perf
+    : test_ggc_perf.cpp
+      ..//adk
+    :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_thread_perf
+    : test_thread_perf.cpp
+      ..//adk
+    :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_thread_timer
+    : test_thread_timer.cpp
+      ..//adk
+    :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_timer_manager_v3
+    : test_timer_manager_v3.cpp
+      ..//adk
+    :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_timer_manager_v4
+    : test_timer_manager_v4.cpp
+      ..//adk
+    :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+
+exe test_timer_manager
+    : test_timer_manager.cpp
+      ..//adk
+    :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_timer_manager_v2
+    : test_timer_manager_v2.cpp
+      ..//adk
+    :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_timer_manager_delete
+    : test_timer_manager_delete.cpp
+      ..//adk
+    :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_global_timer
+    : test_global_timer.cpp
+      ..//adk
+    :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_global_timer_cancel
+    : test_global_timer_cancel.cpp
+      ..//adk
+    :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_lock_free_cont_memory
+    : test_lock_free_cont_memory.cpp
+      ..//adk
+    :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_cont_memory_consumer
+    : test_cont_memory_consumer.cpp
+      ..//adk
+    :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_cont_memory_producer
+    : test_cont_memory_producer.cpp
+      ..//adk
+    :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_shm_java
+    : test_shm_java.cpp
+      ..//adk
+    :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_cpu_aff
+    : test_cpu_aff.cpp
+      ..//adk
+    :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_indicator
+    : test_indicator.cpp
+      ..//adk
+    :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+	
+exe test_const_rate_ctrl
+    : test_const_rate_ctrl.cpp
+      ..//adk
+    :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_const_rate_ctrl_simple
+    : test_const_rate_ctrl_simple.cpp
+      ..//adk
+    :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_simple_rate_ctrl
+    : test_simple_rate_ctrl.cpp
+      ..//adk
+    :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+	
+exe test_lock_free_stream_buffer
+    : test_lock_free_stream_buffer.cpp
+      ..//adk
+    :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_mpsc_queue_lat
+    : test_mpsc_queue_lat.cpp
+      ..//adk
+    :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_memory_allocator
+    : test_memory_allocator.cpp
+      ..//adk
+    :  <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe stream_byte_benchmark
+    : stream_byte_benchmark.cpp
+      ..//adk
+    : <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe adk_interval_log
+    : test_adk_interval_log.cpp
+      ..//adk
+    : <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_net_utils
+    : test_net_utils.cpp
+      ..//adk
+    : <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_array_queue
+    : test_array_queue.cpp
+      ..//adk
+    : <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_waitpid_until
+    : test_waitpid_until.cpp
+      ..//adk
+    : <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_inotify_wrapper
+    : test_inotify_wrapper.cpp
+      ..//adk
+    : <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+
+exe test_lock_free_cont_memory_mp
+    : test_lock_free_cont_memory_mp.cpp
+      ..//adk
+    : <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_lock_free_cont_memory_mp_v2
+    : test_lock_free_cont_memory_mp_v2.cpp
+      ..//adk
+    : <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+exe test_shm
+    : test_shm.cpp
+      ..//adk
+    : <include>../
+      <cxxflags>-g3
+      <threading>multi
+      <implicit-dependency>/boost//headers
+      <debug-symbols>on
+      <define>__ADK_DEBUG__
+    : <include>../
+    ;
+
+install stage
+    : $(CWD)//test_mem_pool
+    : <location>./bin
+    ;
