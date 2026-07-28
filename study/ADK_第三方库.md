@@ -10,21 +10,21 @@
 
 ### 2.1 核心依赖库
 
-| 库名称 | 推荐版本 | 用途 | 必要性 |
-|--------|---------|------|--------|
-| Boost | 1.75.0 | 系统、线程、原子操作等 | ⭐⭐⭐ 必需 |
-| OpenSSL | 3.0.12 | 加密通信 | ⭐⭐⭐ 必需 |
-| libevent | 2.1.12 | 事件循环 | ⭐⭐⭐ 必需 |
-| libev | 4.33 | 高性能事件循环 | ⭐⭐ 推荐 |
-| libuv | 1.44.2 | 异步 IO | ⭐⭐ 推荐 |
-| spdlog | 1.11.0 | 快速日志 | ⭐⭐⭐ 必需 |
-| glog | 0.6.0 | Google 日志 | ⭐ 可选 |
-| Google Test | 1.13.0 | 单元测试 | ⭐ 可选 |
-| Protobuf | 3.21.12 | 序列化 | ⭐⭐ 推荐 |
-| RapidJSON | 1.1.0 | JSON 解析 | ⭐⭐ 推荐 |
-| zlib | 1.3 | 压缩 | ⭐⭐ 推荐 |
-| lz4 | 1.9.4 | 快速压缩 | ⭐ 可选 |
-| snappy | 1.1.9 | 压缩 | ⭐ 可选 |
+| 库名称      | 推荐版本 | 用途                   | 必要性      |
+| ----------- | -------- | ---------------------- | ----------- |
+| Boost       | 1.75.0   | 系统、线程、原子操作等 | ⭐⭐⭐ 必需 |
+| OpenSSL     | 3.0.12   | 加密通信               | ⭐⭐⭐ 必需 |
+| libevent    | 2.1.12   | 事件循环               | ⭐⭐⭐ 必需 |
+| libev       | 4.33     | 高性能事件循环         | ⭐⭐ 推荐   |
+| libuv       | 1.44.2   | 异步 IO                | ⭐⭐ 推荐   |
+| spdlog      | 1.11.0   | 快速日志               | ⭐⭐⭐ 必需 |
+| glog        | 0.6.0    | Google 日志            | ⭐ 可选     |
+| Google Test | 1.13.0   | 单元测试               | ⭐ 可选     |
+| Protobuf    | 3.21.12  | 序列化                 | ⭐⭐ 推荐   |
+| RapidJSON   | 1.1.0    | JSON 解析              | ⭐⭐ 推荐   |
+| zlib        | 1.3      | 压缩                   | ⭐⭐ 推荐   |
+| lz4         | 1.9.4    | 快速压缩               | ⭐ 可选     |
+| snappy      | 1.1.9    | 压缩                   | ⭐ 可选     |
 
 ---
 
@@ -617,21 +617,21 @@ setup_environment() {
 install_boost() {
     step "Installing Boost 1.75.0..."
     cd $SRC_DIR
-    
+  
     if [ ! -f "boost_1_75_0.tar.gz" ]; then
         wget https://boostorg.jfrog.io/artifactory/main/release/1.75.0/source/boost_1_75_0.tar.gz
     fi
-    
+  
     tar -xzf boost_1_75_0.tar.gz
     cd boost_1_75_0
-    
+  
     ./bootstrap.sh --prefix=$PREFIX \
         --with-libraries=system,thread,filesystem,program_options,log,timer,chrono,atomic,date_time,regex
-    
+  
     ./b2 -j$(nproc) \
         link=shared threading=multi variant=release runtime-link=shared \
         install
-    
+  
     info "Boost installed successfully"
 }
 
@@ -639,18 +639,18 @@ install_boost() {
 install_openssl() {
     step "Installing OpenSSL 3.0.12..."
     cd $SRC_DIR
-    
+  
     if [ ! -f "openssl-3.0.12.tar.gz" ]; then
         wget https://www.openssl.org/source/openssl-3.0.12.tar.gz
     fi
-    
+  
     tar -xzf openssl-3.0.12.tar.gz
     cd openssl-3.0.12
-    
+  
     ./config --prefix=$PREFIX --openssldir=$PREFIX/ssl --libdir=lib shared zlib-dynamic enable-asm
     make -j$(nproc)
     sudo make install
-    
+  
     info "OpenSSL installed successfully"
 }
 
@@ -658,18 +658,18 @@ install_openssl() {
 install_libevent() {
     step "Installing libevent 2.1.12..."
     cd $SRC_DIR
-    
+  
     if [ ! -f "libevent-2.1.12-stable.tar.gz" ]; then
         wget https://github.com/libevent/libevent/releases/download/release-2.1.12-stable/libevent-2.1.12-stable.tar.gz
     fi
-    
+  
     tar -xzf libevent-2.1.12-stable.tar.gz
     cd libevent-2.1.12-stable
-    
+  
     ./configure --prefix=$PREFIX --enable-shared --disable-static --enable-thread-support
     make -j$(nproc)
     sudo make install
-    
+  
     info "libevent installed successfully"
 }
 
@@ -677,19 +677,19 @@ install_libevent() {
 install_spdlog() {
     step "Installing spdlog 1.11.0..."
     cd $SRC_DIR
-    
+  
     if [ ! -f "spdlog-1.11.0.tar.gz" ]; then
         wget https://github.com/gabime/spdlog/archive/refs/tags/v1.11.0.tar.gz -O spdlog-1.11.0.tar.gz
     fi
-    
+  
     tar -xzf spdlog-1.11.0.tar.gz
     cd spdlog-1.11.0
-    
+  
     mkdir build && cd build
     cmake .. -DCMAKE_INSTALL_PREFIX=$PREFIX -DSPDLOG_BUILD_SHARED=ON
     make -j$(nproc)
     sudo make install
-    
+  
     info "spdlog installed successfully"
 }
 
@@ -698,13 +698,13 @@ main() {
     info "========================================="
     info "ADK Third-party Dependencies Installer"
     info "========================================="
-    
+  
     setup_environment
     install_boost
     install_openssl
     install_libevent
     install_spdlog
-    
+  
     info "========================================="
     info "Core dependencies installed!"
     info "========================================="
@@ -764,22 +764,22 @@ ls /opt/thirdparty/include/spdlog/spdlog.h
 
 int main() {
     std::cout << "Testing ADK dependencies..." << std::endl;
-    
+  
     // Test Boost
     boost::system::error_code ec;
     std::cout << "✓ Boost works" << std::endl;
-    
+  
     // Test spdlog
     spdlog::info("Testing spdlog");
     std::cout << "✓ spdlog works" << std::endl;
-    
+  
     // Test libevent
     struct event_base* base = event_base_new();
     if (base) {
         std::cout << "✓ libevent works" << std::endl;
         event_base_free(base);
     }
-    
+  
     std::cout << "\nAll dependencies are working!" << std::endl;
     return 0;
 }
@@ -803,6 +803,7 @@ g++ -o test_adk_deps test_adk_deps.cpp \
 ### Q1: Boost 编译时间过长
 
 **解决**:
+
 ```bash
 # 只编译需要的模块
 ./b2 -j$(nproc) --with-system --with-thread --with-filesystem install
@@ -811,6 +812,7 @@ g++ -o test_adk_deps test_adk_deps.cpp \
 ### Q2: 链接错误
 
 **解决**:
+
 ```bash
 # 更新动态链接库缓存
 sudo ldconfig
@@ -823,6 +825,7 @@ sudo ldconfig
 ### Q3: 找不到头文件
 
 **解决**:
+
 ```bash
 # 验证环境变量
 echo $CPLUS_INCLUDE_PATH
@@ -838,6 +841,7 @@ export CPLUS_INCLUDE_PATH=/opt/thirdparty/include:$CPLUS_INCLUDE_PATH
 完成以上步骤后，您应该成功通过源码安装了 ADK 所需的所有第三方库。
 
 **检查清单**:
+
 - ✅ Boost 1.75.0 已安装
 - ✅ OpenSSL 3.0.12 已安装
 - ✅ libevent 2.1.12 已安装
@@ -845,6 +849,7 @@ export CPLUS_INCLUDE_PATH=/opt/thirdparty/include:$CPLUS_INCLUDE_PATH
 - ✅ 其他依赖库已安装
 
 **下一步**:
+
 - 参考 `ADK_编译配置.md` 编译 ADK 工程
 - 确保编译时指定正确的库路径
 
