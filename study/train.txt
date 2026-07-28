@@ -1,0 +1,44 @@
+1. 你是一个成熟的C++开发工程师，现在需要完成一个源码库的学习研究理解分析工作。
+    1. 所有的相关信息存储在 ADK_CODE 目录中。需要你完成以下的任务：
+    1.1 分析这个源代码库，包含几个工程，每个工程包含几个模块，每个模块的作用是什么？
+    1.2 详细分析每个工程的，完成:
+        1. 技术实现方面:
+            1. 详细分析当前框架的代码，分析其中各个模块的实现，不同模块间的关系，以及各个模块的职责。
+            2. 从类型和接口的角度，分析整个框架是怎样，一层一层实现，接口功能又是如何一层一层调用的。
+            3. 当前技术框架实现特点，需要着重注意的语法糖，以及需要特别注意的点。
+            4. 绘制对应的 流程图 或者 uml 图。
+            输出一份 工程名_技术实现.md 
+        2. 数据流转方面:
+            1. 从数据流转的角度，详细分析不同的数据流在 整个框架的接口中，如何流动的。绘制对应的 流程图。
+                输出一份 工程名_数据流转.md
+        3. 产品使用方面:
+                1. 从产品使用的角度，分析每个接口，该如何使用，使用要注意的点在哪，整个业务实现的流程是什么。
+                输出一份 工程名_产品使用.md
+            4. 输出的所有文档存储到 study 文件夹中    
+
+    1.3 分析完成后，给出一份如何在 ubuntu 22.04 或 ubuntu 24.04 编译这些工程的方案。输出到 工程名_编译配置.md 中。存储到 study 文件夹中。
+
+    1.4 对于 工程所依赖的第三方库，给出一份如何在 ubuntu 22.04 或 ubuntu 24.04 通过源码安装这些库的方案。这些源码的版本选择一个稳定的，容易获取的，匹配的版本。
+        然后将这个方案输出到 工程名_第三方库.md 中。存储到 study 文件夹中。
+
+    1.5 把这两个工程的 CMakeLists.txt 文件，修改成可以在 ubuntu 22.04 或 ubuntu 24.04 上编译的版本。并且增加详细的注释，说明每个配置项的含义。
+
+
+2026年7月28日
+1. 之前生成的 ADK_CODE/NGTP_AMI.V3.5.0源码包/NGTP_V3.5.0/adk/code/CMakeLists.txt 有问题，和 对应目录的 
+            ADK_CODE/NGTP_AMI.V3.5.0源码包/NGTP_V3.5.0/adk/code/Jamroot 无法对应上。
+   仔细分析  ADK_CODE/NGTP_AMI.V3.5.0源码包/NGTP_V3.5.0/adk/code/Jamroot 然后创建一份新的 CMakeLists.txt,
+   仿照 /home/lsz/code/work/gt_trunk/DYS-FRAMEWORK/tech/CMakeLists.txt 的风格。
+   使其与 Jamroot 功能能够匹配。
+
+   做下面的的优化:
+   1. 所有编译依赖的三方库的目录设置为 $ENV{GTHT_WORK_DEV}/lib. 
+   2. 头文件目录设置为例 $ENV{GTHT_WORK_DEV}/include。
+   3. boost 的头文件的目录设置为 $ENV{GTHT_WORK_DEV}/include/boost_1_62_0。 
+   4. 生成的动态链接库的安装目录也设置为  $ENV{GTHT_WORK_DEV}/lib
+
+    再次优化:
+    1. 我看 adk 库，依赖于 此次编译的 entry_wrapper，是否要通过 add_dependencies 添加 两个库编译的依赖关系？
+
+2. 按照上面重构CMakeLists.txt 的过程经验和相关原则，将 ADK_CODE/NGTP_AMI.V3.5.0源码包/NGTP_V3.5.0/aaf/code/CMakeLists.txt 对照着
+    ADK_CODE/NGTP_AMI.V3.5.0源码包/NGTP_V3.5.0/aaf/code/Jamroot 也进行一次重构。
