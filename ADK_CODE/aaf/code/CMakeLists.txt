@@ -104,7 +104,8 @@ foreach(MY_DIR ${AAF_LIB_DIR_SRC})
 endforeach()
 
 ###################### 定义构建变体（variant）对应的宏 ######################
-# Jamroot 中所有 variant 都定义了 ADK_LOG_USE_BOOST_LOG
+# Jamroot 中 ADK_LOG_USE_BOOST_LOG 既在 requirements（编译自身时生效）
+# 也在 usage-requirements（其他目标链接 aaf 时生效）
 add_definitions(-DADK_LOG_USE_BOOST_LOG)
 
 ###################### 收集 aaf 库源文件 ######################
@@ -135,6 +136,10 @@ target_include_directories(aaf PRIVATE
 target_compile_options(aaf PRIVATE
     -std=c++11
 )
+
+# Jamroot 中 ADK_LOG_USE_BOOST_LOG 在 usage-requirements 中
+# 使用 INTERFACE 让链接 aaf 的目标也继承此宏
+target_compile_definitions(aaf INTERFACE ADK_LOG_USE_BOOST_LOG)
 
 # 链接依赖：Boost 库 + adk + ami
 target_link_libraries(aaf PRIVATE

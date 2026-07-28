@@ -29,12 +29,6 @@ if ( NOT DEFINED BUILD_SUM_COUNT)
     set(Boost_USE_MULTITHREADED ON)
     set(Boost_USE_STATIC_RUNTIME OFF)
 
-    ######## 编译选项 ---保留足够的debug信息  ########
-    set(Release_Debug_Symbol OFF CACHE  BOOL  "STORE DEBUG SYMBOLS" )
-    if (Release_Debug_Symbol)
-        message(" ********  Define RelWithDebInfo  ******** ${Release_Debug_Symbol} ")
-        set(CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING "Build type" FORCE)
-    endif()
 
     ######## Release 模式下，链接命令不传递 -O3 和 -DNDEBUG ########
     string(REPLACE "-O3" "" CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
@@ -102,9 +96,6 @@ if(ADK_VARIANT_DEFINES)
     message(STATUS "  ADK Variant defines: ${ADK_VARIANT_DEFINES}")
 endif()
 
-# 所有 variant 都需要定义 adk=adk_impl
-add_definitions(-Dadk=adk_impl)
-
 ###################### 编译 entry_wrapper 库 ######################
 # Jamroot 中 entry_wrapper 始终 debug 模式: -O0 -ggdb
 # 由 src/entry_wrapper.cpp 和 src_pack/entry_wrapper_pack.cpp 组成
@@ -158,6 +149,11 @@ target_include_directories(adk PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/io_engine/tcp_verbs
     ${CMAKE_CURRENT_SOURCE_DIR}/3rd
 )
+
+# Jamroot 中 -Dadk=adk_impl 定义在 usage-requirements（第5个冒号后）
+# 即只在其他目标链接 adk 时才生效，编译 adk 本身时不定义此宏
+# 这里使用 INTERFACE 来匹配 Jamroot 的行为
+target_compile_definitions(adk INTERFACE adk=adk_impl)
 
 target_compile_options(adk PRIVATE
     -std=c++11

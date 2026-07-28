@@ -42,3 +42,12 @@
 
 2. 按照上面重构CMakeLists.txt 的过程经验和相关原则，将 ADK_CODE/NGTP_AMI.V3.5.0源码包/NGTP_V3.5.0/aaf/code/CMakeLists.txt 对照着
     ADK_CODE/NGTP_AMI.V3.5.0源码包/NGTP_V3.5.0/aaf/code/Jamroot 也进行一次重构。
+
+3. 现在使用了 ADK_CODE/adk/CMakeLists.txt 进行编译，出现了错误，编译日志在 ADK_CODE/adk/build/adk_compile.log
+   分析编译失败的原因，并进行修正。
+
+   编译 ADK_CODE/adk/CMakeLists.txt 还是报错: /home/lsz/code/work/ami/ADK_CODE/adk/include/adk/compress.h:7:10: fatal error: zlib.h: 没有那个文件或目录
+   该如何处理？
+   
+
+4. 再考察一下 ADK_CODE/aaf/code/CMakeLists.txt 是否存在同样的问题，若是存在也一并解决。
