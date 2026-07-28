@@ -104,7 +104,7 @@ set(ENTRY_WRAPPER_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/src_pack/entry_wrapper_pack.cpp
 )
 
-add_library(entry_wrapper STATIC ${ENTRY_WRAPPER_SRC})
+add_library(entry_wrapper SHARED ${ENTRY_WRAPPER_SRC})
 target_compile_options(entry_wrapper PRIVATE -O0 -ggdb)
 target_include_directories(entry_wrapper PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(entry_wrapper PUBLIC
