@@ -48,9 +48,12 @@ if ( NOT DEFINED BUILD_SUM_COUNT)
     set(THIRD_INCLUDE_DIR ${GTHT_WORK_DEV}/include)
     # Boost 头文件目录
     set(BOOST_INCLUDE_DIR ${THIRD_INCLUDE_DIR}/boost_1_62_0)
+    set(BOOST_LIBRARY_DIR ${THIRD_LIB_DIR}/boost_1_62_0)
+
     message(STATUS "<adk> 3rd lib dir is: ${THIRD_LIB_DIR}")
     message(STATUS "<adk> 3rd include dir is: ${THIRD_INCLUDE_DIR}")
     message(STATUS "<adk> Boost include dir is: ${BOOST_INCLUDE_DIR}")
+    message(STATUS "<adk> Boost lib dir is: ${BOOST_LIBRARY_DIR}")
 
 endif()
 
@@ -73,7 +76,7 @@ foreach(MY_DIR ${ADK_INCLUDE_DIR_SRC})
     include_directories(${MY_DIR})
 endforeach()
 
-set(ADK_LIB_DIR_SRC ${THIRD_LIB_DIR})
+set(ADK_LIB_DIR_SRC ${THIRD_LIB_DIR}  ${BOOST_LIBRARY_DIR})
 
 message(STATUS "  编译依赖的外部库文件所在目录: --------")
 foreach(MY_DIR ${ADK_LIB_DIR_SRC})
