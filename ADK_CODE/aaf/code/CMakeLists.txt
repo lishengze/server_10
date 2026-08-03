@@ -50,23 +50,25 @@ if ( NOT DEFINED BUILD_SUM_COUNT)
 
     # 所有编译依赖的三方库目录
     set(THIRD_LIB_DIR ${GTHT_WORK_DEV}/lib)
+    set(AMI_LIB_DIR ${THIRD_LIB_DIR}/ami)
+    set(BOOST_LIB_DIR ${THIRD_LIB_DIR}/boost_1_62_0)
+
     # 头文件目录
     set(THIRD_INCLUDE_DIR ${GTHT_WORK_DEV}/include)
+    set(AMI_INCLUDE_DIR ${GTHT_WORK_DEV}/include/AMI)
+
     # Boost 头文件目录
     set(BOOST_INCLUDE_DIR ${THIRD_INCLUDE_DIR}/boost_1_62_0)
     message(STATUS "<aaf> 3rd lib dir is: ${THIRD_LIB_DIR}")
     message(STATUS "<aaf> 3rd include dir is: ${THIRD_INCLUDE_DIR}")
     message(STATUS "<aaf> Boost include dir is: ${BOOST_INCLUDE_DIR}")
 
-    ###################### AMI 库目录 ######################
-    if(DEFINED ENV{AMI_HOME})
-        set(AMI_HOME $ENV{AMI_HOME})
-    elseif(DEFINED ENV{HOME})
-        set(AMI_HOME "$ENV{HOME}/AMI/")
-    else()
-        message(FATAL_ERROR "AMI_HOME and HOME environment variables are not set")
-    endif()
-    message(STATUS "<aaf> AMI_HOME is: ${AMI_HOME}")
+    get_filename_component(AAF_DIR "${CMAKE_CURRENT_SOURCE_DIR}" PATH)
+    get_filename_component(ADK_CODE_DIR "${AAF_DIR}" PATH)
+    # get_filename_component(ADK_CODE_DIR "${AAF_DIR}" PATH)
+    # message(STATUS "<aaf> AAF_CODE_DIR is: ${AAF_CODE_DIR}")
+    message(STATUS "<aaf> AAF_DIR is: ${AAF_DIR}")
+    message(STATUS "<aaf> ADK_CODE_DIR is: ${ADK_CODE_DIR}")
 
 endif()
 
@@ -74,10 +76,11 @@ endif()
 # aaf 项目自身头文件目录
 set(AAF_INCLUDE_DIR_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../adk/code/include
+    ${ADK_CODE_DIR}/adk/include
     ${BOOST_INCLUDE_DIR}
     ${THIRD_INCLUDE_DIR}
-    ${AMI_HOME}/include
+    ${AMI_INCLUDE_DIR}
+
 )
 
 message(STATUS "  编译依赖的外部头文件或库文件所在目录: --------")
@@ -90,8 +93,9 @@ foreach(MY_DIR ${AAF_INCLUDE_DIR_SRC})
 endforeach()
 
 set(AAF_LIB_DIR_SRC
+    ${AMI_LIB_DIR}
+    ${BOOST_LIB_DIR}
     ${THIRD_LIB_DIR}
-    ${AMI_HOME}/lib64
 )
 
 message(STATUS "  编译依赖的外部库文件所在目录: --------")
@@ -107,6 +111,11 @@ endforeach()
 # Jamroot 中 ADK_LOG_USE_BOOST_LOG 既在 requirements（编译自身时生效）
 # 也在 usage-requirements（其他目标链接 aaf 时生效）
 add_definitions(-DADK_LOG_USE_BOOST_LOG)
+
+# Jamroot 中 aaf 通过 <library>/adk//adk 引用 adk 库，
+# adk 的 usage-requirements 包含 <define>adk=adk_impl
+# 独立编译时需显式定义此宏，使 adk::ErrorCode 等代码正确解析为 adk_impl::ErrorCode
+add_definitions(-Dadk=adk_impl)
 
 ###################### 收集 aaf 库源文件 ######################
 # Jamroot: [ path.glob-tree $(CWD)/src/util : *.cpp ]
@@ -130,7 +139,7 @@ target_include_directories(aaf PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 target_include_directories(aaf PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../adk/code/include
+    ${ADK_CODE_DIR}/adk/include
 )
 
 target_compile_options(aaf PRIVATE
@@ -175,7 +184,7 @@ endif()
 
 ###################### 设置安装目录并安装 ######################
 # 生成的动态链接库安装到 $ENV{GTHT_WORK_DEV}/lib
-set(AAF_LIB_INSTALL_DIR "${THIRD_LIB_DIR}")
+set(AAF_LIB_INSTALL_DIR "${AMI_LIB_DIR}")
 
 message("------- 安装的目录信息 ---------")
 set(AAF_INSTALL_DIR_SRC ${AAF_LIB_INSTALL_DIR})
