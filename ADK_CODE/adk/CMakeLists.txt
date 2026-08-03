@@ -208,7 +208,7 @@ endif()
 
 ###################### 设置安装目录并安装 ######################
 # 生成的动态链接库安装到 $ENV{GTHT_WORK_DEV}/lib
-set(ADK_LIB_INSTALL_DIR "${THIRD_LIB_DIR}")
+set(ADK_LIB_INSTALL_DIR "${THIRD_LIB_DIR}/ami")
 
 message("------- 安装的目录信息 ---------")
 set(ADK_INSTALL_DIR_SRC ${ADK_LIB_INSTALL_DIR})
@@ -225,7 +225,7 @@ foreach(MY_DIR ${ADK_INSTALL_DIR_SRC})
 endforeach()
 
 install(TARGETS adk LIBRARY DESTINATION ${ADK_LIB_INSTALL_DIR})
-install(TARGETS entry_wrapper ARCHIVE DESTINATION ${ADK_LIB_INSTALL_DIR})
+install(TARGETS entry_wrapper LIBRARY DESTINATION ${ADK_LIB_INSTALL_DIR})
 
 ######################  统计编译文件数目  ######################
 set(ALL_SRC_FILES ${ADK_SRC_TMP} ${ADK_SRC_PACK_TMP} ${ENTRY_WRAPPER_SRC})
