@@ -89,7 +89,7 @@ test/data/data_16/exchange_20250612074150/etf_component_share.xml
 **/tgw_simulator*/tmp/log/*.txt
 **/log_domain/*
 **/fteinit.txt
-**/core*
+# **/core*
 **/log/*
 **/log_domain/**
 # *.csv
