@@ -28,7 +28,7 @@ bin_win/*
 **/dist/*
 *.spec
 *.xlsx
-
+**/cmake_build/*
 **/build_new/*
 **/build_cmake/*
 **/build_ninja/*
