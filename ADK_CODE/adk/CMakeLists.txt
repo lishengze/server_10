@@ -35,6 +35,11 @@ if ( NOT DEFINED BUILD_SUM_COUNT)
     string(REPLACE "-O2" "" CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
     string(REPLACE "-DNDEBUG" "" CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
 
+    ######## GCC > 5 时使用旧 ABI，与 libami.so/libaaf.so 保持一致 ########
+    if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 5.0)
+        add_definitions(-D_GLIBCXX_USE_CXX11_ABI=0)
+    endif ()
+
     ###################### 三方库及头文件目录（统一使用 GTHT_WORK_DEV）######################
     if(NOT DEFINED ENV{GTHT_WORK_DEV})
         message(FATAL_ERROR "GTHT_WORK_DEV environment variable is not set")
@@ -162,6 +167,11 @@ target_compile_options(adk PRIVATE
     -std=c++11
     -ftemplate-depth=256
 )
+
+# Boost.Log 编译时定义了 BOOST_LOG_DLL，使用 v2_mt_posix 命名空间
+# 此处也定义 BOOST_LOG_DLL 保持一致，否则链接时会因 v2s_mt_posix vs v2_mt_posix 导致符号不匹配
+target_compile_definitions(adk PRIVATE BOOST_LOG_DLL)
+target_compile_definitions(entry_wrapper PRIVATE BOOST_LOG_DLL)
 
 # 显式声明构建顺序依赖：adk 依赖 entry_wrapper 先编译完成
 add_dependencies(adk entry_wrapper)

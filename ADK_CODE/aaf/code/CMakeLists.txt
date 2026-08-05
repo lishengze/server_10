@@ -29,6 +29,12 @@ if ( NOT DEFINED BUILD_SUM_COUNT)
     set(Boost_USE_MULTITHREADED ON)
     set(Boost_USE_STATIC_RUNTIME OFF)
 
+    ######## GCC > 5 时使用旧 ABI，与 libami.so/libaaf.so 保持一致 ########
+    if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 5.0)
+        add_definitions(-D_GLIBCXX_USE_CXX11_ABI=0)
+    endif ()
+        
+
     ######## 编译选项 ---保留足够的debug信息  ########
     set(Release_Debug_Symbol OFF CACHE  BOOL  "STORE DEBUG SYMBOLS" )
     if (Release_Debug_Symbol)
