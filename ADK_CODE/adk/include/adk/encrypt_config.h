@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <iomanip>
 #include <string.h>
+#include <cstdint>
 
 namespace adk_impl
 {

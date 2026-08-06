@@ -9,6 +9,7 @@
 #define ADK_IMPL_TCP_ENGINE_H_
 
 #include <string>
+#include <cstdint>
 
 namespace adk_impl
 {

@@ -54,5 +54,6 @@
 
 2026年8月3日
 1. 编译 ADK_CODE/aaf/code/CMakeLists.txt 遇到了问题，编译的错误日志在
-    ADK_CODE/aaf/code/build/cc.log 的第 908 到时974 行。
+    ADK_CODE/aaf/code/build/cc.log 
     分析问题的原因，并给出解决方案。
+
